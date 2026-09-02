@@ -1,0 +1,63 @@
+{
+  "appName": "Frienly",
+  "appTitle": "Frienly",
+  "tagline": "REAL FACES. LIVE VIDEO. ZERO CATFISHING.",
+  "subTagline": "Govt Authorized & Verified",
+  "version": "1.0",
+  "rating": "4.9",
+  "reviewsCount": "25k reviews",
+  "pricing": "Totally Free",
+  "verificationBadge": "100% ID Verified",
+  "matchesCount": "100K+ Matches",
+  "aboutTitle": "ABOUT THE APP",
+  "aboutDescription": "Meet the modern dating platform built on trust and authenticity. By combining live video-first matching with government-authorized ID authentication, you speak directly with real people—no bot accounts, no deceptive photos, and no subscription fees.",
+  "aboutTags": [
+    "Video First",
+    "Govt ID Verified",
+    "Anti-Catfish",
+    "100% Free"
+  ],
+  "logoUrl": "",
+  "heroBannerUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80",
+  "screenshots": [
+    {
+      "id": "screen_1",
+      "url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "caption": "Live Call Preview 1"
+    },
+    {
+      "id": "screen_2",
+      "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "caption": "Live Call Preview 2"
+    },
+    {
+      "id": "screen_3",
+      "url": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80",
+      "caption": "Live Call Preview 3"
+    },
+    {
+      "id": "screen_4",
+      "url": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+      "caption": "Live Call Preview 4"
+    }
+  ],
+  "apk": {
+    "hasApk": false,
+    "sourceType": "github",
+    "downloadUrl": "",
+    "filename": "",
+    "originalName": "",
+    "fileSize": "",
+    "sizeBytes": 0,
+    "version": "1.0",
+    "uploadedAt": "",
+    "downloadCount": 0
+  },
+  "github": {
+    "isConnected": true,
+    "owner": "Thor121689",
+    "repo": "pokanoka",
+    "token": ""
+  },
+  "adminPassword": "admin"
+}

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frienly - Admin Management Console</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Auth Gate / Login Modal -->
+  <div id="login-modal" class="login-overlay">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-icon-wrap">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2>FRIENLY CONSOLE</h2>
+        <p>Admin Dashboard & Asset Control</p>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <div class="input-group">
+          <label for="admin-password">Admin Password</label>
+          <div class="password-input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="admin-password" placeholder="Enter password (default: admin)" required autocomplete="current-password" />
+            <button type="button" id="toggle-pwd-btn" class="icon-btn" aria-label="Toggle password visibility">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <span class="input-hint">Default password is: <code>admin</code></span>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn-primary btn-block">
+          <span>Log In to Dashboard</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Admin Layout -->
+  <div id="admin-app" class="admin-layout" style="display: none;">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-pill">
+          <i class="fa-solid fa-video"></i>
+          <div>
+            <div class="app-brand-name" id="sidebar-app-name">FRIENLY</div>
+            <div class="app-sub-badge">ADMIN SUITE</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="tab-overview">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Overview</span>
+        </button>
+        <button class="nav-item" data-tab="tab-apk">
+          <i class="fa-brands fa-android"></i>
+          <span>APK Management</span>
+          <span class="badge-pill" id="apk-status-pill">Ready</span>
+        </button>
+        <button class="nav-item" data-tab="tab-branding">
+          <i class="fa-solid fa-gem"></i>
+          <span>Logo & Identity</span>
+        </button>
+        <button class="nav-item" data-tab="tab-hero">
+          <i class="fa-solid fa-image"></i>
+          <span>Hero Banner</span>
+        </button>
+        <button class="nav-item" data-tab="tab-screenshots">
+          <i class="fa-solid fa-mobile-screen"></i>
+          <span>Screenshots Carousel</span>
+          <span class="badge-pill" id="screenshot-count-pill">4</span>
+        </button>
+        <button class="nav-item" data-tab="tab-content">
+          <i class="fa-solid fa-pen-nib"></i>
+          <span>Content & Stats</span>
+        </button>
+        <button class="nav-item" data-tab="tab-security">
+          <i class="fa-solid fa-key"></i>
+          <span>Security</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="/" target="_blank" class="btn-view-site">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          <span>View Public Page</span>
+        </a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="mobile-menu-toggle" class="mobile-toggle-btn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="breadcrumbs">
+            <span class="crumb-root">Frienly Admin</span>
+            <span class="crumb-separator">/</span>
+            <span class="crumb-active" id="crumb-active-title">Overview</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="server-status">
+            <span class="pulse-dot"></span> Server Online
+          </div>
+          <a href="/" target="_blank" class="btn-preview-small">
+            <i class="fa-solid fa-eye"></i> Live Site
+          </a>
+        </div>
+      </header>
+
+      <!-- TAB 1: OVERVIEW -->
+      <section id="tab-overview" class="tab-pane active">
+        <div class="section-title-wrap">
+          <h2>Dashboard Overview</h2>
+          <p>Quick status and management for your Frienly dating app landing page.</p>
+        </div>
+
+        <div class="stats-cards-grid">
+          <!-- Card 1: APK Status -->
+          <div class="glass-card stat-card">
+            <div class="stat-card-icon apk-icon">
+              <i class="fa-brands fa-android"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-label">Active APK Build</div>
+              <div class="stat-value" id="ov-apk-version">v1.0</div>
+              <div class="stat-meta" id="ov-apk-size">Status: Checking...</div>
+            </div>
+            <button class="card-action-btn" onclick="switchTab('tab-apk')">Manage APK →</button>
+          </div>
+
+          <!-- Card 2: Total Downloads -->
+          <div class="glass-card stat-card">
+            <div class="stat-card-icon dl-icon">
+              <i class="fa-solid fa-cloud-arrow-down"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-label">Total APK Downloads</div>
+              <div class="stat-value" id="ov-download-count">0</div>
+              <div class="stat-meta">Direct installer downloads</div>
+            </div>
+            <a href="/api/download/apk" class="card-action-btn" id="ov-test-dl-btn">Test Download ↓</a>
+          </div>
+
+          <!-- Card 3: Screenshots Count -->
+          <div class="glass-card stat-card">
+            <div class="stat-card-icon gallery-icon">
+              <i class="fa-solid fa-images"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-label">App Carousel Photos</div>
+              <div class="stat-value" id="ov-screenshots-count">4</div>
+              <div class="stat-meta">Active preview slides</div>
+            </div>
+            <button class="card-action-btn" onclick="switchTab('tab-screenshots')">Manage Slides →</button>
+          </div>
+
+          <!-- Card 4: Hero Status -->
+          <div class="glass-card stat-card">
+            <div class="stat-card-icon banner-icon">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-label">Landing Page Banner</div>
+              <div class="stat-value">Active</div>
+              <div class="stat-meta">Custom Hero Graphic</div>
+            </div>
+            <button class="card-action-btn" onclick="switchTab('tab-hero')">Change Banner →</button>
+          </div>
+        </div>
+
+        <!-- Quick Upload Hub -->
+        <div class="grid-2-col mt-4">
+          <!-- Quick APK Card -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-brands fa-android text-pink"></i> Current Live APK</h3>
+              <span class="tag-status" id="ov-apk-badge">Ready</span>
+            </div>
+            <div class="card-body">
+              <div class="apk-info-box">
+                <div class="apk-info-row">
+                  <span class="info-label">File Name:</span>
+                  <span class="info-val font-mono" id="ov-apk-filename">-</span>
+                </div>
+                <div class="apk-info-row">
+                  <span class="info-label">Version:</span>
+                  <span class="info-val" id="ov-apk-ver-detail">-</span>
+                </div>
+                <div class="apk-info-row">
+                  <span class="info-label">File Size:</span>
+                  <span class="info-val" id="ov-apk-filesize">-</span>
+                </div>
+                <div class="apk-info-row">
+                  <span class="info-label">Last Updated:</span>
+                  <span class="info-val" id="ov-apk-date">-</span>
+                </div>
+              </div>
+              <div class="btn-row mt-3">
+                <button class="btn-primary" onclick="switchTab('tab-apk')">
+                  <i class="fa-solid fa-upload"></i> Upload Newer APK
+                </button>
+                <a href="/api/download/apk" class="btn-secondary" id="ov-download-link">
+                  <i class="fa-solid fa-download"></i> Download Current APK
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Preview Card -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-desktop text-pink"></i> Live Assets Preview</h3>
+              <a href="/" target="_blank" class="link-small">Open in Full Page</a>
+            </div>
+            <div class="card-body">
+              <div class="preview-mini-banner" id="ov-mini-hero">
+                <div class="preview-mini-overlay">
+                  <div class="preview-mini-logo-wrap">
+                    <div id="ov-mini-logo-display">
+                      <i class="fa-solid fa-video"></i>
+                    </div>
+                    <span id="ov-mini-app-title">FRIENLY</span>
+                  </div>
+                  <div class="preview-mini-tag" id="ov-mini-tagline">REAL FACES. LIVE VIDEO. ZERO CATFISHING.</div>
+                </div>
+              </div>
+              <div class="btn-row mt-3">
+                <button class="btn-secondary" onclick="switchTab('tab-branding')">
+                  <i class="fa-solid fa-pen"></i> Edit Brand & Logo
+                </button>
+                <button class="btn-secondary" onclick="switchTab('tab-hero')">
+                  <i class="fa-solid fa-image"></i> Edit Hero Image
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: APK MANAGEMENT -->
+      <section id="tab-apk" class="tab-pane">
+        <div class="section-title-wrap">
+          <h2>Android APK Management</h2>
+          <p>Upload your application binary (.apk). The download button on the landing page will immediately point to this APK with native Android installer headers.</p>
+        </div>
+
+        <!-- ROW 1: Active Status & 1-Click Uploader -->
+        <div class="grid-2-col">
+          <!-- Active APK Status -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-circle-check text-success"></i> Active Distribution</h3>
+              <span class="tag-status" id="apk-live-status-tag">Active</span>
+            </div>
+            <div class="card-body">
+              <div class="apk-detail-card">
+                <div class="apk-detail-header">
+                  <div class="apk-icon-circle">
+                    <i class="fa-brands fa-android"></i>
+                  </div>
+                  <div>
+                    <h4 id="apk-card-title">Frienly Android App</h4>
+                    <span class="apk-card-version" id="apk-card-version">v1.0.0</span>
+                  </div>
+                </div>
+
+                <div class="detail-list mt-3">
+                  <div class="detail-item">
+                    <span class="text-muted">Storage Source:</span>
+                    <span class="font-mono text-pink" id="apk-source-type">GitHub Release CDN (Cloud)</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="text-muted">Direct Download Endpoint:</span>
+                    <span class="font-mono text-pink"><a href="/api/download/apk" target="_blank">/api/download/apk</a></span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="text-muted">Download URL:</span>
+                    <span class="font-mono" id="apk-file-stored" style="word-break: break-all; max-width: 260px;">-</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="text-muted">File Size:</span>
+                    <span id="apk-size-stored">-</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="text-muted">Total Downloads:</span>
+                    <span id="apk-downloads-stored">0</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="text-muted">Last Updated:</span>
+                    <span id="apk-date-stored">-</span>
+                  </div>
+                </div>
+
+                <div class="btn-row mt-4">
+                  <a href="/api/download/apk" class="btn-primary" id="apk-test-download-link">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Test Download Live APK
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1-Click Automated GitHub Uploader -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-bolt-lightning text-pink"></i> 1-Click Upload to GitHub Releases</h3>
+              <span class="badge-pill" id="github-conn-status-pill">Checking...</span>
+            </div>
+            <div class="card-body">
+              <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
+                Drag &amp; drop your APK here. The server will automatically publish the release on GitHub and link the CDN download button immediately!
+              </p>
+
+              <form id="apk-github-auto-form">
+                <div class="input-group">
+                  <label for="gh-auto-version">Release Version String</label>
+                  <input type="text" id="gh-auto-version" placeholder="e.g. 1.0, 1.1, 2.0" required />
+                  <span class="input-hint">Creates release tag like <code>v1.0</code> on GitHub.</span>
+                </div>
+
+                <div class="input-group">
+                  <label>Select Android APK (.apk)</label>
+                  <div class="drop-zone" id="gh-auto-drop-zone">
+                    <i class="fa-brands fa-android drop-zone-icon"></i>
+                    <p class="drop-zone-text">Drag &amp; drop <strong>.apk</strong> file here, or click to browse</p>
+                    <span class="drop-zone-hint">Uploaded directly to your connected GitHub repository releases</span>
+                    <input type="file" id="gh-auto-file-input" accept=".apk,application/vnd.android.package-archive" style="display: none;" required />
+                  </div>
+                  <div id="gh-auto-selected-info" class="selected-file-info" style="display: none;">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span id="gh-auto-file-name">filename.apk</span>
+                    <span id="gh-auto-file-size" class="text-muted">(0 MB)</span>
+                    <button type="button" id="gh-auto-file-clear" class="btn-text-danger"><i class="fa-solid fa-xmark"></i></button>
+                  </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="gh-auto-progress-wrap" class="progress-wrap" style="display: none;">
+                  <div class="progress-labels">
+                    <span id="gh-auto-progress-status">Uploading...</span>
+                    <span id="gh-auto-progress-percent">0%</span>
+                  </div>
+                  <div class="progress-bar-track">
+                    <div id="gh-auto-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <button type="submit" id="gh-auto-submit-btn" class="btn-primary btn-block mt-3" disabled>
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <span>Publish Release to GitHub &amp; Set Live</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2: GitHub 1-Time Setup & Settings -->
+        <div class="glass-card mt-4">
+          <div class="card-header">
+            <h3><i class="fa-brands fa-github text-pink"></i> GitHub 1-Click Integration Setup</h3>
+            <span class="tag-status" id="gh-badge-label">Not Connected</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted" style="font-size: 12.5px; margin-bottom: 16px;">
+              Connect your GitHub repository once so the Admin Panel can publish releases on your behalf without asking every time.
+            </p>
+
+            <form id="github-settings-form">
+              <div class="grid-2-col">
+                <div class="input-group">
+                  <label for="gh-owner-input">GitHub Username / Owner</label>
+                  <input type="text" id="gh-owner-input" placeholder="e.g. your-github-username" required />
+                </div>
+
+                <div class="input-group">
+                  <label for="gh-repo-input">Repository Name</label>
+                  <input type="text" id="gh-repo-input" placeholder="frienly-web" required />
+                </div>
+              </div>
+
+              <div class="input-group mt-2">
+                <label for="gh-token-input">GitHub Personal Access Token (PAT)</label>
+                <div class="password-input-wrap">
+                  <i class="fa-solid fa-key"></i>
+                  <input type="password" id="gh-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required />
+                </div>
+                <span class="input-hint">
+                  Free 1-minute setup: Go to <a href="https://github.com/settings/tokens/new?scopes=repo&description=Frienly+APK+Uploader" target="_blank">GitHub Token Generator ↗</a>, tick <strong>repo</strong> scope, generate, and paste here!
+                </span>
+              </div>
+
+              <div class="btn-row mt-3">
+                <button type="submit" class="btn-primary" id="gh-save-btn">
+                  <i class="fa-solid fa-plug"></i> Test &amp; Save GitHub Connection
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ROW 3: Fallback Manual Link Paste -->
+        <details class="glass-card mt-4" style="padding: 16px 20px;">
+          <summary style="cursor: pointer; font-weight: 700; color: var(--text-muted); font-size: 13px;">
+            <i class="fa-solid fa-link text-pink"></i> Advanced / Manual Link Paste Option (Click to expand)
+          </summary>
+          <div style="margin-top: 14px;">
+            <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
+              Prefer to paste an existing GitHub Release or external APK link directly without uploading?
+            </p>
+            <form id="apk-github-link-form">
+              <div class="input-group">
+                <label for="apk-link-url">Direct APK Download Link</label>
+                <input type="url" id="apk-link-url" placeholder="https://github.com/username/repo/releases/download/v1.0/Frienly.apk" />
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="input-group">
+                  <label for="apk-link-version">Version</label>
+                  <input type="text" id="apk-link-version" placeholder="1.0" />
+                </div>
+                <div class="input-group">
+                  <label for="apk-link-size">File Size (e.g. 35 MB)</label>
+                  <input type="text" id="apk-link-size" placeholder="35.4 MB" />
+                </div>
+              </div>
+              <button type="submit" class="btn-secondary mt-2" id="apk-link-submit-btn">
+                <i class="fa-solid fa-check"></i> Set Manual Link Live
+              </button>
+            </form>
+          </div>
+        </details>
+      </section>
+
+      <!-- TAB 3: APP IDENTITY & LOGO -->
+      <section id="tab-branding" class="tab-pane">
+        <div class="section-title-wrap">
+          <h2>App Logo &amp; Identity</h2>
+          <p>Customize your app branding, upload an app logo image or icon, and set taglines.</p>
+        </div>
+
+        <div class="grid-2-col">
+          <!-- Logo Upload Card -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-image text-pink"></i> App / Game Logo</h3>
+            </div>
+            <div class="card-body">
+              <div class="current-logo-preview-wrap">
+                <div class="logo-preview-box" id="logo-preview-box">
+                  <div id="logo-fallback-icon" class="logo-fallback">
+                    <i class="fa-solid fa-video"></i>
+                  </div>
+                  <img id="logo-preview-img" src="" alt="App Logo" style="display: none;" />
+                </div>
+                <div class="logo-preview-info">
+                  <h4 id="logo-status-title">Default Brand Icon</h4>
+                  <p class="text-muted">Recommended: Square PNG with transparent background or SVG (min 200x200px).</p>
+                </div>
+              </div>
+
+              <form id="logo-upload-form" class="mt-4">
+                <div class="drop-zone" id="logo-drop-zone">
+                  <i class="fa-solid fa-cloud-arrow-up drop-zone-icon"></i>
+                  <p class="drop-zone-text">Drop your <strong>Logo image</strong> here, or browse</p>
+                  <span class="drop-zone-hint">PNG, WebP, JPG, SVG up to 25 MB</span>
+                  <input type="file" id="logo-file-input" accept="image/*" style="display: none;" />
+                </div>
+
+                <div id="logo-selected-info" class="selected-file-info" style="display: none;">
+                  <i class="fa-solid fa-image"></i>
+                  <span id="logo-file-name">logo.png</span>
+                  <button type="button" id="logo-file-clear" class="btn-text-danger"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <button type="submit" id="logo-upload-btn" class="btn-primary btn-block mt-3" disabled>
+                  <i class="fa-solid fa-upload"></i> Upload &amp; Update Logo
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- App Details Form -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-font text-pink"></i> Brand Titles &amp; Tagline</h3>
+            </div>
+            <div class="card-body">
+              <form id="identity-form">
+                <div class="input-group">
+                  <label for="input-app-name">App Name</label>
+                  <input type="text" id="input-app-name" placeholder="Frienly" required />
+                </div>
+
+                <div class="input-group">
+                  <label for="input-app-title">Header Display Title</label>
+                  <input type="text" id="input-app-title" placeholder="Frienly Dating" required />
+                  <span class="input-hint">Shown in top navigation header.</span>
+                </div>
+
+                <div class="input-group">
+                  <label for="input-auth-badge">Govt Authorization Badge Text</label>
+                  <input type="text" id="input-auth-badge" placeholder="Govt Authorized & Verified" />
+                </div>
+
+                <div class="input-group">
+                  <label for="input-tagline">Main Tagline</label>
+                  <input type="text" id="input-tagline" placeholder="REAL FACES. LIVE VIDEO. ZERO CATFISHING." />
+                </div>
+
+                <button type="submit" class="btn-primary btn-block mt-3">
+                  <i class="fa-solid fa-floppy-disk"></i> Save Brand Details
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: HERO BANNER -->
+      <section id="tab-hero" class="tab-pane">
+        <div class="section-title-wrap">
+          <h2>Hero Banner Management</h2>
+          <p>The Hero Banner is the primary visual backdrop on the landing page.</p>
+        </div>
+
+        <div class="grid-2-col">
+          <!-- Live Preview of Hero -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-eye text-pink"></i> Current Hero Banner</h3>
+            </div>
+            <div class="card-body">
+              <div class="hero-live-preview" id="hero-preview-stage">
+                <div class="hero-stage-overlay"></div>
+                <div class="hero-stage-content">
+                  <div class="badge-mini"><i class="fa-solid fa-circle-check"></i> <span id="hero-preview-badge">Govt Authorized</span></div>
+                  <h3 id="hero-preview-title">FRIENLY</h3>
+                  <p id="hero-preview-tag">REAL FACES. LIVE VIDEO. ZERO CATFISHING.</p>
+                </div>
+              </div>
+              <div class="banner-meta mt-3">
+                <span class="text-muted">Image Source:</span>
+                <span class="font-mono text-pink" id="hero-current-url">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload New Hero Banner -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-cloud-arrow-up text-pink"></i> Upload New Banner</h3>
+            </div>
+            <div class="card-body">
+              <form id="hero-upload-form">
+                <div class="drop-zone" id="hero-drop-zone">
+                  <i class="fa-solid fa-panorama drop-zone-icon"></i>
+                  <p class="drop-zone-text">Drop your <strong>Hero Banner image</strong> here, or browse</p>
+                  <span class="drop-zone-hint">Recommended: 800x1200 or 1080x1920 portrait/cover image (JPG, WebP, PNG)</span>
+                  <input type="file" id="hero-file-input" accept="image/*" style="display: none;" required />
+                </div>
+
+                <div id="hero-selected-info" class="selected-file-info" style="display: none;">
+                  <i class="fa-solid fa-image"></i>
+                  <span id="hero-file-name">banner.jpg</span>
+                  <button type="button" id="hero-file-clear" class="btn-text-danger"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <button type="submit" id="hero-upload-btn" class="btn-primary btn-block mt-3" disabled>
+                  <i class="fa-solid fa-upload"></i> Upload &amp; Set Live Banner
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: SCREENSHOTS CAROUSEL -->
+      <section id="tab-screenshots" class="tab-pane">
+        <div class="section-title-wrap">
+          <h2>Screenshot Carousel Management</h2>
+          <p>Add, replace, or delete the app preview screenshots featured in the landing page carousel.</p>
+        </div>
+
+        <!-- Upload New Screenshots Card -->
+        <div class="glass-card mb-4">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-plus-circle text-pink"></i> Add New Screenshots</h3>
+          </div>
+          <div class="card-body">
+            <form id="screenshot-upload-form">
+              <div class="grid-2-col">
+                <div class="drop-zone" id="screenshots-drop-zone">
+                  <i class="fa-solid fa-mobile-screen-button drop-zone-icon"></i>
+                  <p class="drop-zone-text">Drop one or more <strong>app screenshots</strong> here, or browse</p>
+                  <span class="drop-zone-hint">Mobile portrait screenshots (PNG, JPG, WebP) - multiple files supported</span>
+                  <input type="file" id="screenshot-file-input" accept="image/*" multiple style="display: none;" required />
+                </div>
+
+                <div>
+                  <div class="input-group">
+                    <label for="screenshot-caption-input">Default Caption (Optional)</label>
+                    <input type="text" id="screenshot-caption-input" placeholder="e.g. Live Verified Video Call" />
+                  </div>
+                  <div id="screenshots-selected-list" class="screenshots-selected-list"></div>
+                  <button type="submit" id="screenshot-upload-btn" class="btn-primary btn-block mt-3" disabled>
+                    <i class="fa-solid fa-upload"></i> Upload Screenshots
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Current Screenshots Gallery -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-images text-pink"></i> Active Screenshots in Carousel</h3>
+            <span class="text-muted" id="active-screenshots-count-label">4 items</span>
+          </div>
+          <div class="card-body">
+            <div id="screenshots-gallery-grid" class="screenshots-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: CONTENT & STATS -->
+      <section id="tab-content" class="tab-pane">
+        <div class="section-title-wrap">
+          <h2>Page Content &amp; Statistics</h2>
+          <p>Configure the trust numbers, badges, and the About section on the download page.</p>
+        </div>
+
+        <div class="grid-2-col">
+          <!-- Stats Bar -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-chart-simple text-pink"></i> Key Statistics Bar</h3>
+            </div>
+            <div class="card-body">
+              <form id="stats-form">
+                <div class="input-group">
+                  <label for="stat-rating">App Rating</label>
+                  <input type="text" id="stat-rating" placeholder="4.9" />
+                </div>
+                <div class="input-group">
+                  <label for="stat-reviews">Reviews Subtitle</label>
+                  <input type="text" id="stat-reviews" placeholder="25k reviews" />
+                </div>
+                <div class="input-group">
+                  <label for="stat-pricing">Pricing Pill</label>
+                  <input type="text" id="stat-pricing" placeholder="Totally Free" />
+                </div>
+                <div class="input-group">
+                  <label for="stat-verification">Verification Pill</label>
+                  <input type="text" id="stat-verification" placeholder="100% ID Verified" />
+                </div>
+                <div class="input-group">
+                  <label for="stat-matches">Matches Count</label>
+                  <input type="text" id="stat-matches" placeholder="100K+ Matches" />
+                </div>
+                <button type="submit" class="btn-primary btn-block mt-3">
+                  <i class="fa-solid fa-floppy-disk"></i> Save Stats
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- About Section -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-circle-info text-pink"></i> About Section Details</h3>
+            </div>
+            <div class="card-body">
+              <form id="about-form">
+                <div class="input-group">
+                  <label for="about-title-input">Section Title</label>
+                  <input type="text" id="about-title-input" placeholder="ABOUT THE APP" />
+                </div>
+                <div class="input-group">
+                  <label for="about-desc-input">Description Paragraph</label>
+                  <textarea id="about-desc-input" rows="5" placeholder="App description..."></textarea>
+                </div>
+                <div class="input-group">
+                  <label for="about-tags-input">Feature Tags (comma separated)</label>
+                  <input type="text" id="about-tags-input" placeholder="Video First, Govt ID Verified, Anti-Catfish, 100% Free" />
+                </div>
+                <button type="submit" class="btn-primary btn-block mt-3">
+                  <i class="fa-solid fa-floppy-disk"></i> Save About Info
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: SECURITY -->
+      <section id="tab-security" class="tab-pane">
+        <div class="section-title-wrap">
+          <h2>Admin Security</h2>
+          <p>Change your console access password.</p>
+        </div>
+
+        <div class="glass-card max-w-500">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-shield-halved text-pink"></i> Change Admin Password</h3>
+          </div>
+          <div class="card-body">
+            <form id="password-form">
+              <div class="input-group">
+                <label for="current-pwd">Current Password</label>
+                <input type="password" id="current-pwd" required />
+              </div>
+              <div class="input-group">
+                <label for="new-pwd">New Password</label>
+                <input type="password" id="new-pwd" minlength="3" required />
+              </div>
+              <div class="input-group">
+                <label for="confirm-pwd">Confirm New Password</label>
+                <input type="password" id="confirm-pwd" minlength="3" required />
+              </div>
+              <button type="submit" class="btn-primary btn-block mt-3">
+                <i class="fa-solid fa-key"></i> Update Password
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
