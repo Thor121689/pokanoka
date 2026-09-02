@@ -642,14 +642,25 @@
 
         <!-- Current Screenshots Gallery -->
         <div class="glass-card">
-          <div class="card-header">
-            <h3><i class="fa-solid fa-images text-pink"></i> Active Screenshots in Carousel</h3>
-            <span class="text-muted" id="active-screenshots-count-label">4 items</span>
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h3><i class="fa-solid fa-images text-pink"></i> Active Screenshots in Carousel</h3>
+              <span class="text-muted" id="active-screenshots-count-label">4 items</span>
+            </div>
+            <div class="header-action-btns" style="display: flex; gap: 8px;">
+              <button type="button" id="btn-reset-screenshots" class="btn-secondary" style="padding: 7px 14px; font-size: 11.5px;">
+                <i class="fa-solid fa-rotate-left"></i> Reset Defaults
+              </button>
+              <button type="button" id="btn-clear-all-screenshots" class="btn-secondary" style="padding: 7px 14px; font-size: 11.5px; border-color: rgba(239,68,68,0.5); color: #fca5a5;">
+                <i class="fa-solid fa-trash-can"></i> Delete All
+              </button>
+            </div>
           </div>
           <div class="card-body">
             <div id="screenshots-gallery-grid" class="screenshots-grid">
-              <!-- Dynamically populated -->
+              <!-- Dynamically populated with Replace & Delete buttons -->
             </div>
+            <input type="file" id="replace-screenshot-input" accept="image/*" style="display: none;" />
           </div>
         </div>
       </section>

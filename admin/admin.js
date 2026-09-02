@@ -388,20 +388,29 @@ function renderHero(cfg) {
 function renderScreenshots(cfg) {
   const grid = document.getElementById('screenshots-gallery-grid');
   const screenshots = cfg.screenshots || [];
-  document.getElementById('active-screenshots-count-label').textContent = `${screenshots.length} active slides`;
+  const countLabel = document.getElementById('active-screenshots-count-label');
+  if (countLabel) countLabel.textContent = `${screenshots.length} active slides`;
 
   if (screenshots.length === 0) {
-    grid.innerHTML = '<div class="text-muted p-4">No screenshots uploaded yet. Use the uploader above to add some!</div>';
+    grid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 32px 16px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px;">
+        <i class="fa-solid fa-images" style="font-size: 32px; color: var(--accent-pink); opacity: 0.5; margin-bottom: 10px;"></i>
+        <p style="color: var(--text-muted); font-size: 13px;">No screenshots in carousel. Upload screenshots above or click 'Reset Defaults'!</p>
+      </div>
+    `;
     return;
   }
 
   grid.innerHTML = screenshots.map((item, index) => `
     <div class="screenshot-item-card" data-id="${item.id}">
-      <span class="screenshot-badge-num">#${index + 1}</span>
+      <span class="screenshot-badge-num">Slide #${index + 1}</span>
       <img src="${item.url}" alt="${item.caption || 'Screenshot'}" loading="lazy" />
-      <div class="screenshot-actions">
-        <button type="button" class="btn-delete-screenshot" onclick="deleteScreenshot('${item.id}')" title="Delete Screenshot">
-          <i class="fa-solid fa-trash-can"></i>
+      <div class="screenshot-card-footer">
+        <button type="button" class="btn-card-replace" onclick="triggerReplaceScreenshot('${item.id}')" title="Replace this image">
+          <i class="fa-solid fa-arrow-rotate-right"></i> Replace
+        </button>
+        <button type="button" class="btn-card-delete" onclick="deleteScreenshot('${item.id}')" title="Delete this screenshot">
+          <i class="fa-solid fa-trash-can"></i> Delete
         </button>
       </div>
     </div>
@@ -914,26 +923,117 @@ document.getElementById('screenshot-upload-form')?.addEventListener('submit', as
   }
 });
 
-// Global delete screenshot function
-window.deleteScreenshot = async function(id) {
-  if (!confirm('Are you sure you want to remove this screenshot slide?')) return;
+// ==========================================
+// Screenshot Replace & Delete Controls
+// ==========================================
+let activeReplacingScreenshotId = null;
+const replaceFileInput = document.getElementById('replace-screenshot-input');
+
+window.triggerReplaceScreenshot = function(id) {
+  activeReplacingScreenshotId = id;
+  if (replaceFileInput) {
+    replaceFileInput.value = '';
+    replaceFileInput.click();
+  }
+};
+
+replaceFileInput?.addEventListener('change', async () => {
+  const file = replaceFileInput.files[0];
+  if (!file || !activeReplacingScreenshotId) return;
+
+  const formData = new FormData();
+  formData.append('screenshot', file);
+
+  showToast('Uploading replacement image...', 'info');
 
   try {
-    const res = await fetch(`/api/screenshot/${id}`, {
-      method: 'DELETE',
+    const res = await fetch(`/api/screenshot/${activeReplacingScreenshotId}/replace`, {
+      method: 'POST',
+      headers: { 'Authorization': getAuthToken() },
+      body: formData
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Screenshot updated successfully!', 'success');
+      loadConfig();
+    } else {
+      showToast(data.error || 'Failed to replace screenshot', 'error');
+    }
+  } catch (err) {
+    showToast('Network error replacing screenshot', 'error');
+  } finally {
+    activeReplacingScreenshotId = null;
+  }
+});
+
+// Delete single screenshot (tries POST delete fallback then DELETE)
+window.deleteScreenshot = async function(id) {
+  if (!confirm('Are you sure you want to delete this screenshot?')) return;
+
+  try {
+    let res = await fetch(`/api/screenshot/${id}/delete`, {
+      method: 'POST',
+      headers: { 'Authorization': getAuthToken() }
+    });
+    if (!res.ok) {
+      res = await fetch(`/api/screenshot/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': getAuthToken() }
+      });
+    }
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Screenshot deleted successfully', 'success');
+      loadConfig();
+    } else {
+      showToast(data.error || 'Failed to delete screenshot', 'error');
+    }
+  } catch (e) {
+    showToast('Network error deleting screenshot', 'error');
+  }
+};
+
+// Clear all screenshots
+document.getElementById('btn-clear-all-screenshots')?.addEventListener('click', async () => {
+  if (!confirm('Are you sure you want to delete ALL screenshots from the carousel?')) return;
+
+  try {
+    const res = await fetch('/api/screenshots/clear-all', {
+      method: 'POST',
       headers: { 'Authorization': getAuthToken() }
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      showToast('Screenshot removed', 'info');
+      showToast('All screenshots deleted', 'info');
       loadConfig();
     } else {
-      showToast(data.error || 'Failed to remove screenshot', 'error');
+      showToast(data.error || 'Failed to clear screenshots', 'error');
     }
-  } catch (e) {
-    showToast('Network error removing screenshot', 'error');
+  } catch (err) {
+    showToast('Network error clearing screenshots', 'error');
   }
-};
+});
+
+// Reset screenshots to defaults
+document.getElementById('btn-reset-screenshots')?.addEventListener('click', async () => {
+  if (!confirm('Reset carousel back to default preview screenshots?')) return;
+
+  try {
+    const res = await fetch('/api/screenshots/reset', {
+      method: 'POST',
+      headers: { 'Authorization': getAuthToken() }
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Screenshots reset to default previews!', 'success');
+      loadConfig();
+    } else {
+      showToast(data.error || 'Failed to reset screenshots', 'error');
+    }
+  } catch (err) {
+    showToast('Network error resetting screenshots', 'error');
+  }
+});
 
 // ==========================================================================
 // Text & Content Forms

@@ -667,6 +667,101 @@ app.delete('/api/screenshot/:id', requireAuth, (req, res) => {
   });
 });
 
+// POST /api/screenshot/:id/delete -> Fallback delete
+app.post('/api/screenshot/:id/delete', requireAuth, (req, res) => {
+  const { id } = req.params;
+  const settings = getSettings();
+  if (!Array.isArray(settings.screenshots)) {
+    return res.status(404).json({ error: 'No screenshots exist' });
+  }
+
+  const index = settings.screenshots.findIndex(s => s.id === id);
+  if (index === -1) {
+    return res.status(404).json({ error: 'Screenshot not found' });
+  }
+
+  const [removed] = settings.screenshots.splice(index, 1);
+  if (removed.url && removed.url.startsWith('/uploads/images/')) {
+    const filename = path.basename(removed.url);
+    const diskPath = path.join(IMAGES_DIR, filename);
+    if (fs.existsSync(diskPath)) {
+      try { fs.unlinkSync(diskPath); } catch (e) {}
+    }
+  }
+
+  saveSettings(settings);
+  res.json({ success: true, message: 'Screenshot deleted', screenshots: settings.screenshots });
+});
+
+// POST /api/screenshot/:id/replace -> Replace single screenshot image
+app.post('/api/screenshot/:id/replace', requireAuth, imageUpload.single('screenshot'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No replacement image provided' });
+  }
+  const { id } = req.params;
+  const settings = getSettings();
+  if (!Array.isArray(settings.screenshots)) {
+    return res.status(404).json({ error: 'No screenshots exist' });
+  }
+
+  const index = settings.screenshots.findIndex(s => s.id === id);
+  if (index === -1) {
+    return res.status(404).json({ error: 'Screenshot not found' });
+  }
+
+  const oldUrl = settings.screenshots[index].url;
+  if (oldUrl && oldUrl.startsWith('/uploads/images/')) {
+    const oldFile = path.join(IMAGES_DIR, path.basename(oldUrl));
+    if (fs.existsSync(oldFile)) {
+      try { fs.unlinkSync(oldFile); } catch (e) {}
+    }
+  }
+
+  settings.screenshots[index].url = `/uploads/images/${req.file.filename}`;
+  if (req.body.caption) {
+    settings.screenshots[index].caption = req.body.caption.trim();
+  }
+  saveSettings(settings);
+
+  res.json({
+    success: true,
+    message: 'Screenshot updated successfully!',
+    screenshot: settings.screenshots[index],
+    screenshots: settings.screenshots
+  });
+});
+
+// POST /api/screenshots/clear-all -> Clear all screenshots
+app.post('/api/screenshots/clear-all', requireAuth, (req, res) => {
+  const settings = getSettings();
+  if (Array.isArray(settings.screenshots)) {
+    settings.screenshots.forEach(s => {
+      if (s.url && s.url.startsWith('/uploads/images/')) {
+        const diskPath = path.join(IMAGES_DIR, path.basename(s.url));
+        if (fs.existsSync(diskPath)) {
+          try { fs.unlinkSync(diskPath); } catch (e) {}
+        }
+      }
+    });
+  }
+  settings.screenshots = [];
+  saveSettings(settings);
+  res.json({ success: true, message: 'All screenshots cleared', screenshots: [] });
+});
+
+// POST /api/screenshots/reset -> Reset to default 4 demo screenshots
+app.post('/api/screenshots/reset', requireAuth, (req, res) => {
+  const settings = getSettings();
+  settings.screenshots = [
+    { id: 'screen_1', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', caption: 'Live Call Preview 1' },
+    { id: 'screen_2', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', caption: 'Live Call Preview 2' },
+    { id: 'screen_3', url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80', caption: 'Live Call Preview 3' },
+    { id: 'screen_4', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80', caption: 'Live Call Preview 4' }
+  ];
+  saveSettings(settings);
+  res.json({ success: true, message: 'Reset screenshots to default previews', screenshots: settings.screenshots });
+});
+
 // POST /api/screenshot/reorder -> Reorder screenshots
 app.post('/api/screenshot/reorder', requireAuth, (req, res) => {
   const { orderedIds } = req.body;

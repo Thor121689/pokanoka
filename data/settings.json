@@ -42,22 +42,22 @@
     }
   ],
   "apk": {
-    "hasApk": false,
+    "hasApk": true,
     "sourceType": "github",
-    "downloadUrl": "",
-    "filename": "",
-    "originalName": "",
-    "fileSize": "",
-    "sizeBytes": 0,
+    "downloadUrl": "https://github.com/Thor121689/pokanoka/releases/download/v1.0/Frienly_v1.0.apk",
+    "filename": "Frienly_v1.0.apk",
+    "originalName": "mi-calculator-16-1-5.apk",
+    "fileSize": "9 MB",
+    "sizeBytes": 9475832,
     "version": "1.0",
-    "uploadedAt": "",
-    "downloadCount": 0
+    "uploadedAt": "2026-09-02T12:34:01.910Z",
+    "downloadCount": 3
   },
   "github": {
     "isConnected": true,
     "owner": "Thor121689",
     "repo": "pokanoka",
-    "token": ""
+    "token": "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"
   },
   "adminPassword": "admin",
   "lockdown": {

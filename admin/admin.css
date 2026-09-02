@@ -991,67 +991,99 @@ a:hover {
 
 .screenshot-item-card {
   position: relative;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   border: 1px solid var(--card-border);
   overflow: hidden;
   background: #110712;
   aspect-ratio: 9/16;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .screenshot-item-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px var(--accent-glow);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 42, 112, 0.25);
   border-color: var(--accent-pink);
 }
 
 .screenshot-item-card img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  z-index: 1;
 }
 
 .screenshot-badge-num {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background: rgba(0, 0, 0, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
-.screenshot-actions {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 8px;
-  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.9) 100%);
+.screenshot-card-footer {
+  position: relative;
+  z-index: 3;
+  background: linear-gradient(180deg, rgba(12, 3, 11, 0) 0%, rgba(12, 3, 11, 0.92) 30%, #0c030b 100%);
+  padding: 16px 8px 10px;
   display: flex;
-  justify-content: flex-end;
+  gap: 6px;
 }
 
-.btn-delete-screenshot {
-  background: rgba(239, 68, 68, 0.85);
-  border: none;
+.btn-card-replace {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  border-radius: 8px;
+  padding: 9px 4px;
+  font-size: 11px;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  transition: background 0.2s ease;
+  gap: 5px;
+  transition: all 0.2s ease;
 }
-.btn-delete-screenshot:hover {
+.btn-card-replace:hover, .btn-card-replace:active {
+  background: rgba(255, 42, 112, 0.35);
+  border-color: var(--accent-pink);
+}
+
+.btn-card-delete {
+  flex: 1;
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+  border-radius: 8px;
+  padding: 9px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+.btn-card-delete:hover, .btn-card-delete:active {
   background: var(--danger);
+  color: #fff;
 }
 
 .screenshots-selected-list {
