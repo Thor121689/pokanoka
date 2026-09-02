@@ -1064,27 +1064,104 @@ a:hover {
 }
 
 /* ==========================================================================
-   Responsive Adaptations
+   Responsive Adaptations & Android Mobile Optimization
    ========================================================================== */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99;
+}
+.sidebar-backdrop.active {
+  display: block;
+}
+
 @media (max-width: 900px) {
   .sidebar {
     position: fixed;
-    left: -270px;
+    left: -280px;
     top: 0;
-    transition: left 0.25s ease;
+    bottom: 0;
+    height: 100vh;
+    height: 100dvh;
+    transition: left 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 100;
   }
   .sidebar.mobile-open {
     left: 0;
-    box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+    box-shadow: 14px 0 40px rgba(0, 0, 0, 0.9);
   }
   .mobile-toggle-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
   }
   .tab-pane {
-    padding: 20px 16px 40px;
+    padding: 16px 14px 40px;
   }
   .grid-2-col {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Prevent browser auto-zoom on mobile inputs */
+  input[type="text"],
+  input[type="password"],
+  input[type="url"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  .topbar {
+    padding: 12px 14px;
+  }
+  .breadcrumbs .crumb-root {
+    display: none;
+  }
+  .server-status {
+    display: none;
+  }
+  .glass-card {
+    padding: 16px 14px;
+    border-radius: var(--radius-md);
+  }
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .btn-primary,
+  .btn-secondary {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13.5px;
+  }
+  .drop-zone {
+    padding: 24px 14px;
+    min-height: 120px;
+    cursor: pointer;
+  }
+  .drop-zone-text strong {
+    color: var(--accent-pink);
+  }
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 6px 0;
+  }
+  .detail-item .font-mono {
+    max-width: 100% !important;
+    word-break: break-all;
   }
 }

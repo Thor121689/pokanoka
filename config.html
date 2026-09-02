@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="theme-color" content="#060207">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Developer Master Control - Lockdown Console</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -424,6 +426,33 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .app-container {
+        padding: 14px 12px 60px;
+      }
+      .input-wrap input,
+      .input-wrap textarea {
+        font-size: 16px !important;
+      }
+      .glass-card {
+        padding: 18px 14px;
+        border-radius: 14px;
+      }
+      .topbar {
+        padding: 12px 14px;
+      }
+      .status-hero {
+        padding: 24px 14px;
+      }
+      .hero-status-title {
+        font-size: 19px;
+      }
+      .btn-killswitch {
+        font-size: 13.5px;
+        padding: 14px 16px;
+      }
     }
   </style>
 </head>

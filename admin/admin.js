@@ -69,11 +69,23 @@ function switchTab(tabId) {
 
   // Close mobile sidebar if open
   document.querySelector('.sidebar')?.classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop')?.classList.remove('active');
 }
 
-// Mobile sidebar toggle
+// Mobile sidebar toggle & backdrop
+const adminSidebar = document.querySelector('.sidebar');
+const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
 document.getElementById('mobile-menu-toggle')?.addEventListener('click', () => {
-  document.querySelector('.sidebar')?.classList.toggle('mobile-open');
+  const isOpen = adminSidebar?.classList.toggle('mobile-open');
+  if (sidebarBackdrop) {
+    sidebarBackdrop.classList.toggle('active', !!isOpen);
+  }
+});
+
+sidebarBackdrop?.addEventListener('click', () => {
+  adminSidebar?.classList.remove('mobile-open');
+  sidebarBackdrop?.classList.remove('active');
 });
 
 // Setup tab navigation buttons
