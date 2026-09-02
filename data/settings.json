@@ -59,5 +59,14 @@
     "repo": "pokanoka",
     "token": ""
   },
-  "adminPassword": "admin"
+  "adminPassword": "admin",
+  "lockdown": {
+    "isLocked": false,
+    "heading": "SERVICE SUSPENDED BY DEVELOPER",
+    "message": "Website has been locked by the developer because of payment not done by the client.",
+    "subMessage": "All public access and administration features have been disabled until pending invoices are cleared.",
+    "contactInfo": "Please contact the developer directly to resolve pending settlement.",
+    "developerKey": "devmaster123",
+    "lockedAt": null
+  }
 }

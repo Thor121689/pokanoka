@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developer Master Control - Lockdown Console</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #060207;
+      --card-bg: rgba(22, 8, 18, 0.88);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent: #ff2a70;
+      --accent-glow: rgba(255, 42, 112, 0.45);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.5);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.45);
+      --text: #f9f6f8;
+      --text-muted: #a894a2;
+      --text-dim: #6e5c6a;
+      --font: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      background: rgba(26, 8, 20, 0.96);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      animation: slideIn 0.3s ease;
+    }
+    .toast.success { border-color: var(--success); }
+    .toast.success i { color: var(--success); }
+    .toast.danger { border-color: var(--danger); }
+    .toast.danger i { color: var(--danger); }
+    @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Login Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(30, 8, 22, 0.98) 0%, rgba(4, 1, 5, 0.99) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 42, 112, 0.3);
+      border-radius: 20px;
+      padding: 36px 28px;
+      text-align: center;
+      box-shadow: 0 0 50px rgba(255, 42, 112, 0.2);
+    }
+    .auth-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(255, 42, 112, 0.12);
+      border: 1px solid rgba(255, 42, 112, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      font-size: 26px;
+      color: var(--accent);
+      box-shadow: 0 0 25px var(--accent-glow);
+    }
+    .auth-card h2 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .auth-card p {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-bottom: 24px;
+    }
+    .input-wrap {
+      position: relative;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    .input-wrap label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .input-wrap input,
+    .input-wrap textarea {
+      width: 100%;
+      background: rgba(10, 3, 9, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 13.5px;
+      transition: all 0.2s ease;
+    }
+    .input-wrap input:focus,
+    .input-wrap textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: var(--font);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-block { width: 100%; }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff1b6b 0%, #b8004f 100%);
+      color: #fff;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .btn-primary:hover { opacity: 0.94; transform: translateY(-1px); }
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+      color: #fff;
+      box-shadow: 0 0 25px var(--danger-glow);
+    }
+    .btn-danger:hover { opacity: 0.94; transform: translateY(-1px); }
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #065f46 100%);
+      color: #fff;
+      box-shadow: 0 0 25px var(--success-glow);
+    }
+    .btn-success:hover { opacity: 0.94; transform: translateY(-1px); }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.14); }
+
+    /* Layout */
+    .app-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    header.topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 22px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(14px);
+    }
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-title i {
+      font-size: 22px;
+      color: var(--accent);
+      filter: drop-shadow(0 0 10px var(--accent-glow));
+    }
+    .brand-title h1 {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #fff;
+    }
+    .brand-sub {
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Cards */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 26px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(14px);
+      position: relative;
+    }
+    .glass-card.danger-border {
+      border-color: rgba(239, 68, 68, 0.4);
+      box-shadow: 0 0 35px rgba(239, 68, 68, 0.15);
+    }
+    .glass-card.success-border {
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.15);
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .card-title-row h2 {
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Big Status Hero Box */
+    .status-hero {
+      border-radius: 16px;
+      padding: 30px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .status-hero.unlocked {
+      background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15) 0%, rgba(8, 2, 7, 0.95) 100%);
+      border: 2px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+    .status-hero.locked {
+      background: radial-gradient(circle at center, rgba(239, 68, 68, 0.2) 0%, rgba(8, 2, 7, 0.95) 100%);
+      border: 2px solid rgba(239, 68, 68, 0.55);
+      box-shadow: 0 0 50px rgba(239, 68, 68, 0.3);
+    }
+
+    .hero-status-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+    }
+    .status-hero.unlocked .hero-status-icon {
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px solid var(--success);
+      color: var(--success);
+      box-shadow: 0 0 25px var(--success-glow);
+    }
+    .status-hero.locked .hero-status-icon {
+      background: rgba(239, 68, 68, 0.18);
+      border: 2px solid var(--danger);
+      color: var(--danger);
+      box-shadow: 0 0 35px var(--danger-glow);
+      animation: alertPulse 2s infinite;
+    }
+
+    @keyframes alertPulse {
+      0% { transform: scale(0.96); box-shadow: 0 0 20px var(--danger-glow); }
+      50% { transform: scale(1.04); box-shadow: 0 0 40px rgba(239, 68, 68, 0.7); }
+      100% { transform: scale(0.96); box-shadow: 0 0 20px var(--danger-glow); }
+    }
+
+    .hero-status-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    .status-hero.unlocked .hero-status-title { color: #6ee7b7; text-shadow: 0 0 20px var(--success-glow); }
+    .status-hero.locked .hero-status-title { color: #fca5a5; text-shadow: 0 0 20px var(--danger-glow); }
+
+    .hero-status-desc {
+      font-size: 13.5px;
+      max-width: 540px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .killswitch-action-wrap {
+      margin-top: 10px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .btn-killswitch {
+      width: 100%;
+      padding: 16px 24px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    /* Live Preview Box */
+    .preview-box {
+      border: 1px dashed rgba(239, 68, 68, 0.4);
+      background: rgba(12, 3, 9, 0.85);
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 16px;
+      text-align: center;
+    }
+    .preview-box h4 {
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .preview-box .pv-notice {
+      background: rgba(239, 68, 68, 0.15);
+      border-left: 3px solid var(--danger);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #fecaca;
+      margin-bottom: 10px;
+      text-align: left;
+      font-weight: 600;
+    }
+    .preview-box .pv-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .preview-box .pv-contact {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      color: #d1d5db;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .badge-pill.unlocked {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+    .badge-pill.locked {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Feedbacks -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Developer Auth Gate -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="auth-card">
+      <div class="auth-icon">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+      <h2>DEVELOPER ACCESS</h2>
+      <p>Enter your Developer Master Passcode to open the lockdown kill-switch console.</p>
+
+      <form id="auth-form">
+        <div class="input-wrap">
+          <label for="dev-passcode-input">Master Passcode</label>
+          <input type="password" id="dev-passcode-input" placeholder="Enter developer key (default: devmaster123)" required autocomplete="current-password" autofocus />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="auth-submit-btn">
+          <i class="fa-solid fa-unlock-keyhole"></i> Enter Console
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Console -->
+  <div id="console-app" class="app-container" style="display: none;">
+
+    <!-- Top Navigation -->
+    <header class="topbar">
+      <div class="brand-title">
+        <i class="fa-solid fa-power-off"></i>
+        <div>
+          <h1>DEVELOPER CONTROL CONSOLE</h1>
+          <div class="brand-sub">KILL-SWITCH &amp; PAYMENT LOCK SYSTEM</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="/" target="_blank" class="btn btn-secondary">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Test Site
+        </a>
+        <button id="logout-btn" class="btn btn-secondary" title="Exit Console">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- KILL-SWITCH HERO -->
+    <section class="glass-card" id="status-card-wrap">
+      <div class="card-title-row">
+        <h2><i class="fa-solid fa-tower-broadcast"></i> Current Website Status</h2>
+        <span class="badge-pill unlocked" id="badge-status-pill">
+          <span class="dot">●</span> Live &amp; Accessible
+        </span>
+      </div>
+
+      <div class="status-hero unlocked" id="status-hero-box">
+        <div class="hero-status-icon" id="hero-status-icon">
+          <i class="fa-solid fa-globe"></i>
+        </div>
+        <div class="hero-status-title" id="hero-status-title">WEBSITE IS ACTIVE &amp; LIVE</div>
+        <p class="hero-status-desc" id="hero-status-desc">
+          Visitors and clients can freely view the download landing page, download the APK, and use the client admin panel.
+        </p>
+
+        <div class="killswitch-action-wrap">
+          <button id="toggle-lock-btn" class="btn btn-danger btn-killswitch">
+            <i class="fa-solid fa-lock"></i>
+            <span>ENFORCE DEVELOPER LOCKDOWN</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS & CUSTOMIZATION GRID -->
+    <div class="grid-2">
+      <!-- Notice Editor -->
+      <section class="glass-card">
+        <div class="card-title-row">
+          <h2><i class="fa-solid fa-pen-to-square"></i> Lockdown Notice Details</h2>
+        </div>
+        <form id="notice-form">
+          <div class="input-wrap">
+            <label for="notice-heading">Heading Display</label>
+            <input type="text" id="notice-heading" placeholder="SERVICE SUSPENDED BY DEVELOPER" />
+          </div>
+
+          <div class="input-wrap">
+            <label for="notice-message">Primary Reason (Highlight Box)</label>
+            <textarea id="notice-message" rows="3" placeholder="Website has been locked by the developer because of payment not done by the client."></textarea>
+          </div>
+
+          <div class="input-wrap">
+            <label for="notice-sub">Secondary Notice</label>
+            <textarea id="notice-sub" rows="2" placeholder="All public access and administration features have been disabled until pending invoices are cleared."></textarea>
+          </div>
+
+          <div class="input-wrap">
+            <label for="notice-contact">Action Required / Contact Info</label>
+            <input type="text" id="notice-contact" placeholder="Please contact the developer directly to resolve pending settlement." />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">
+            <i class="fa-solid fa-floppy-disk"></i> Save Notice Text
+          </button>
+        </form>
+      </section>
+
+      <!-- Live Notice Preview & Key Management -->
+      <div>
+        <section class="glass-card">
+          <div class="card-title-row">
+            <h2><i class="fa-solid fa-eye text-pink"></i> Live Screen Preview (When Locked)</h2>
+          </div>
+          <p class="text-muted" style="font-size: 12px; margin-bottom: 8px;">
+            This is exactly what the client and public visitors will see on their screen:
+          </p>
+
+          <div class="preview-box">
+            <div style="font-size: 24px; color: var(--danger); margin-bottom: 8px;"><i class="fa-solid fa-lock"></i></div>
+            <h4 id="pv-heading">SERVICE SUSPENDED BY DEVELOPER</h4>
+            <div class="pv-notice" id="pv-msg">Website has been locked by the developer because of payment not done by the client.</div>
+            <div class="pv-sub" id="pv-sub">All public access and administration features have been disabled until pending invoices are cleared.</div>
+            <div class="pv-contact" id="pv-contact"><strong>Payment Resolution:</strong><br>Please contact the developer directly.</div>
+          </div>
+        </section>
+
+        <section class="glass-card">
+          <div class="card-title-row">
+            <h2><i class="fa-solid fa-key"></i> Master Developer Passcode</h2>
+          </div>
+          <form id="key-form">
+            <div class="input-wrap">
+              <label for="current-dev-key">Current Developer Passcode</label>
+              <input type="password" id="current-dev-key" placeholder="Current passcode" required />
+            </div>
+            <div class="input-wrap">
+              <label for="new-dev-key">New Developer Passcode</label>
+              <input type="password" id="new-dev-key" placeholder="Min 4 characters" minlength="4" required />
+            </div>
+            <button type="submit" class="btn btn-secondary btn-block">
+              <i class="fa-solid fa-shield-halved"></i> Update Passcode
+            </button>
+          </form>
+        </section>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const TOKEN_KEY = 'frienly_dev_token';
+    let devStatus = null;
+
+    // Toast helper
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icon = type === 'success' ? 'fa-circle-check' : (type === 'danger' ? 'fa-triangle-exclamation' : 'fa-circle-info');
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function getToken() {
+      return localStorage.getItem(TOKEN_KEY) || '';
+    }
+    function setToken(token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    }
+    function clearToken() {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+
+    // Check Auth
+    async function checkAuth() {
+      const token = getToken();
+      if (!token) {
+        document.getElementById('auth-modal').style.display = 'flex';
+        document.getElementById('console-app').style.display = 'none';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/dev/status', {
+          headers: { 'Authorization': token }
+        });
+        if (res.ok) {
+          devStatus = await res.json();
+          document.getElementById('auth-modal').style.display = 'none';
+          document.getElementById('console-app').style.display = 'block';
+          renderStatus(devStatus);
+        } else {
+          clearToken();
+          document.getElementById('auth-modal').style.display = 'flex';
+          document.getElementById('console-app').style.display = 'none';
+        }
+      } catch (err) {
+        document.getElementById('auth-modal').style.display = 'flex';
+        document.getElementById('console-app').style.display = 'none';
+      }
+    }
+
+    // Login Form
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = document.getElementById('dev-passcode-input').value;
+      const submitBtn = document.getElementById('auth-submit-btn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+      try {
+        const res = await fetch('/api/dev/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          setToken(data.token);
+          document.getElementById('auth-modal').style.display = 'none';
+          document.getElementById('console-app').style.display = 'block';
+          showToast('Developer console unlocked!', 'success');
+          loadStatus();
+        } else {
+          showToast(data.error || 'Invalid passcode', 'danger');
+        }
+      } catch (err) {
+        showToast('Network error connecting to server', 'danger');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-unlock-keyhole"></i> Enter Console';
+      }
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      clearToken();
+      document.getElementById('auth-modal').style.display = 'flex';
+      document.getElementById('console-app').style.display = 'none';
+      document.getElementById('dev-passcode-input').value = '';
+      showToast('Logged out of Developer Console', 'info');
+    });
+
+    // Load status
+    async function loadStatus() {
+      try {
+        const res = await fetch('/api/dev/status', {
+          headers: { 'Authorization': getToken() }
+        });
+        if (!res.ok) throw new Error();
+        devStatus = await res.json();
+        renderStatus(devStatus);
+      } catch (e) {
+        showToast('Error loading developer status', 'danger');
+      }
+    }
+
+    // Render Status
+    function renderStatus(st) {
+      const hero = document.getElementById('status-hero-box');
+      const icon = document.getElementById('hero-status-icon');
+      const title = document.getElementById('hero-status-title');
+      const desc = document.getElementById('hero-status-desc');
+      const btn = document.getElementById('toggle-lock-btn');
+      const pill = document.getElementById('badge-status-pill');
+
+      if (st.isLocked) {
+        hero.className = 'status-hero locked';
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        title.textContent = 'WEBSITE IS UNDER DEVELOPER LOCKDOWN';
+        desc.textContent = `All public visitors and clients are blocked with the payment suspension screen. Active since ${st.lockedAt ? new Date(st.lockedAt).toLocaleTimeString() : 'now'}.`;
+        
+        btn.className = 'btn btn-success btn-killswitch';
+        btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> <span>LIFT LOCKDOWN &amp; RESTORE WEBSITE</span>';
+
+        pill.className = 'badge-pill locked';
+        pill.innerHTML = '<span class="dot">●</span> LOCKED BY DEVELOPER';
+      } else {
+        hero.className = 'status-hero unlocked';
+        icon.innerHTML = '<i class="fa-solid fa-globe"></i>';
+        title.textContent = 'WEBSITE IS ACTIVE &amp; OPERATIONAL';
+        desc.textContent = 'The download landing page and admin panel are 100% accessible to visitors and clients.';
+
+        btn.className = 'btn btn-danger btn-killswitch';
+        btn.innerHTML = '<i class="fa-solid fa-lock"></i> <span>ENFORCE DEVELOPER LOCKDOWN</span>';
+
+        pill.className = 'badge-pill unlocked';
+        pill.innerHTML = '<span class="dot">●</span> LIVE &amp; ACCESSIBLE';
+      }
+
+      // Populate Notice Form
+      document.getElementById('notice-heading').value = st.heading || '';
+      document.getElementById('notice-message').value = st.message || '';
+      document.getElementById('notice-sub').value = st.subMessage || '';
+      document.getElementById('notice-contact').value = st.contactInfo || '';
+
+      // Populate Preview
+      document.getElementById('pv-heading').textContent = st.heading || 'SERVICE SUSPENDED BY DEVELOPER';
+      document.getElementById('pv-msg').textContent = st.message || 'Website locked due to unpaid dues.';
+      document.getElementById('pv-sub').textContent = st.subMessage || '';
+      document.getElementById('pv-contact').innerHTML = `<strong>Payment Resolution:</strong><br>${st.contactInfo || 'Contact developer directly.'}`;
+    }
+
+    // Toggle Lockdown Action
+    document.getElementById('toggle-lock-btn').addEventListener('click', async () => {
+      const isCurrentlyLocked = devStatus && devStatus.isLocked;
+      const promptMsg = isCurrentlyLocked
+        ? 'Are you sure you want to UNLOCK the website and restore public access?'
+        : 'ARE YOU SURE YOU WANT TO LOCK THE WEBSITE?\n\nAll public visitors will be blocked with the payment suspension notice!';
+
+      if (!confirm(promptMsg)) return;
+
+      const btn = document.getElementById('toggle-lock-btn');
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/dev/toggle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          },
+          body: JSON.stringify({ isLocked: !isCurrentlyLocked })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(data.message, data.isLocked ? 'danger' : 'success');
+          loadStatus();
+        } else {
+          showToast(data.error || 'Failed to toggle lockdown', 'danger');
+        }
+      } catch (err) {
+        showToast('Network error toggling lockdown', 'danger');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // Save Notice Details
+    document.getElementById('notice-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        heading: document.getElementById('notice-heading').value,
+        message: document.getElementById('notice-message').value,
+        subMessage: document.getElementById('notice-sub').value,
+        contactInfo: document.getElementById('notice-contact').value
+      };
+
+      try {
+        const res = await fetch('/api/dev/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('Lockdown notice text saved!', 'success');
+          loadStatus();
+        } else {
+          showToast(data.error || 'Failed to save notice', 'danger');
+        }
+      } catch (e) {
+        showToast('Network error saving notice', 'danger');
+      }
+    });
+
+    // Change Key
+    document.getElementById('key-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const currentKey = document.getElementById('current-dev-key').value;
+      const newKey = document.getElementById('new-dev-key').value;
+
+      try {
+        const res = await fetch('/api/dev/change-key', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          },
+          body: JSON.stringify({ currentKey, newKey })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('Developer Master Key changed!', 'success');
+          document.getElementById('current-dev-key').value = '';
+          document.getElementById('new-dev-key').value = '';
+        } else {
+          showToast(data.error || 'Failed to change key', 'danger');
+        }
+      } catch (e) {
+        showToast('Network error updating key', 'danger');
+      }
+    });
+
+    // Real-time preview updates while typing
+    ['notice-heading', 'notice-message', 'notice-sub', 'notice-contact'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', () => {
+        document.getElementById('pv-heading').textContent = document.getElementById('notice-heading').value;
+        document.getElementById('pv-msg').textContent = document.getElementById('notice-message').value;
+        document.getElementById('pv-sub').textContent = document.getElementById('notice-sub').value;
+        document.getElementById('pv-contact').innerHTML = `<strong>Payment Resolution:</strong><br>${document.getElementById('notice-contact').value}`;
+      });
+    });
+
+    // Start
+    checkAuth();
+  </script>
+</body>
+</html>
