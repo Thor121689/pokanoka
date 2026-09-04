@@ -93,15 +93,50 @@ function getSettings() {
     };
   }
 
+// Helper: Normalize GitHub Config inputs
+function normalizeGitHubConfig(rawOwner, rawRepo, rawToken) {
+  let owner = (rawOwner || '').trim().replace(/^["']|["']$/g, '');
+  let repo = (rawRepo || '').trim().replace(/^["']|["']$/g, '').replace(/\.git$/i, '');
+  let token = (rawToken || '').trim().replace(/^["']|["']$/g, '').replace(/^Bearer\s+/i, '');
+
+  if (repo.includes('github.com/')) {
+    const parts = repo.split('github.com/')[1].split('/').filter(Boolean);
+    if (parts.length >= 2) {
+      owner = parts[0];
+      repo = parts[1];
+    }
+  } else if (repo.includes('/')) {
+    const parts = repo.split('/').filter(Boolean);
+    if (parts.length >= 2) {
+      owner = parts[0];
+      repo = parts[1];
+    }
+  }
+
+  if (owner.includes('github.com/')) {
+    const parts = owner.split('github.com/')[1].split('/').filter(Boolean);
+    if (parts.length >= 1) {
+      owner = parts[0];
+    }
+  }
+
+  return { owner, repo, token };
+}
+
   // Environment variable overrides (ideal for Render deployment!)
   if (process.env.ADMIN_PASSWORD) {
     settings.adminPassword = process.env.ADMIN_PASSWORD;
   }
   if (process.env.GITHUB_TOKEN) {
+    const norm = normalizeGitHubConfig(
+      process.env.GITHUB_OWNER || settings.github?.owner || 'Thor121689',
+      process.env.GITHUB_REPO || settings.github?.repo || 'pokanoka',
+      process.env.GITHUB_TOKEN
+    );
     if (!settings.github) settings.github = {};
-    settings.github.token = process.env.GITHUB_TOKEN;
-    settings.github.owner = process.env.GITHUB_OWNER || settings.github.owner || '';
-    settings.github.repo = process.env.GITHUB_REPO || settings.github.repo || '';
+    settings.github.token = norm.token;
+    settings.github.owner = norm.owner;
+    settings.github.repo = norm.repo;
     settings.github.isConnected = true;
   }
 
@@ -390,7 +425,13 @@ app.use((req, res, next) => {
 // ==========================================
 app.use('/uploads', express.static(UPLOADS_DIR));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
-app.use(express.static(__dirname)); // Serves index.html at /
+
+// Serve index2 download page
+app.get('/index2', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index2.html'));
+});
+
+app.use(express.static(__dirname)); // Serves static files (index.html, index2.html, etc.)
 
 // ==========================================
 // PUBLIC API ENDPOINTS
@@ -908,19 +949,17 @@ app.get('/api/github/settings', requireAuth, (req, res) => {
 
 // POST /api/github/settings -> Test and save GitHub Credentials
 app.post('/api/github/settings', requireAuth, async (req, res) => {
-  const { owner, repo, token } = req.body;
+  const { owner: rawOwner, repo: rawRepo, token: rawToken } = req.body;
+  const { owner, repo, token } = normalizeGitHubConfig(rawOwner, rawRepo, rawToken);
+
   if (!owner || !repo || !token) {
     return res.status(400).json({ error: 'GitHub Owner, Repository Name, and Personal Access Token are all required' });
   }
 
-  const cleanOwner = owner.trim();
-  const cleanRepo = repo.trim();
-  const cleanToken = token.trim();
-
   try {
-    const testRes = await fetch(`https://api.github.com/repos/${cleanOwner}/${cleanRepo}`, {
+    const testRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
       headers: {
-        'Authorization': `Bearer ${cleanToken}`,
+        'Authorization': `Bearer ${token}`,
         'Accept': 'application/vnd.github+json',
         'User-Agent': 'Frienly-App-Uploader'
       }
@@ -931,7 +970,7 @@ app.post('/api/github/settings', requireAuth, async (req, res) => {
         return res.status(400).json({ error: 'GitHub Token is invalid or expired. Check token permissions.' });
       }
       if (testRes.status === 404) {
-        return res.status(400).json({ error: `Repository "${cleanOwner}/${cleanRepo}" not found. Verify repository name and that the token has "repo" scope.` });
+        return res.status(400).json({ error: `Repository "${owner}/${repo}" not found (404). Check: 1) Token has "repo" scope (Classic) or access to "${repo}" (Fine-Grained), 2) Repo name is "${repo}" without owner prefix.` });
       }
       return res.status(400).json({ error: `GitHub API error (status ${testRes.status})` });
     }
@@ -940,9 +979,9 @@ app.post('/api/github/settings', requireAuth, async (req, res) => {
     const settings = getSettings();
     settings.github = {
       isConnected: true,
-      owner: cleanOwner,
-      repo: cleanRepo,
-      token: cleanToken
+      owner,
+      repo,
+      token
     };
     saveSettings(settings);
 
@@ -965,17 +1004,16 @@ app.post('/api/upload/apk/github', requireAuth, apkUpload.single('apk'), async (
 
   const settings = getSettings();
   const gh = settings.github || {};
-  if (!gh.token || !gh.owner || !gh.repo) {
+  const { owner, repo, token } = normalizeGitHubConfig(gh.owner, gh.repo, gh.token);
+
+  if (!token || !owner || !repo) {
     if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-    return res.status(400).json({ error: 'GitHub integration not configured. Please save your GitHub token in the GitHub Settings box first.' });
+    return res.status(400).json({ error: 'GitHub integration not configured. Please save your GitHub token and repository name in the GitHub Settings box first.' });
   }
 
   const rawVersion = req.body.version ? req.body.version.trim() : (settings.apk?.version || '1.0');
   const cleanVersion = rawVersion.replace(/^v/i, '');
   const tagName = `v${cleanVersion}`;
-  const owner = gh.owner;
-  const repo = gh.repo;
-  const token = gh.token;
 
   try {
     // 1. Create or get release on GitHub
@@ -1005,12 +1043,20 @@ app.post('/api/upload/apk/github', requireAuth, apkUpload.single('apk'), async (
         }
       });
       if (!getRelRes.ok) {
-        throw new Error(`Release for tag ${tagName} exists but could not be accessed`);
+        throw new Error(`Release for tag ${tagName} exists but could not be accessed on ${owner}/${repo}`);
       }
       releaseData = await getRelRes.json();
+    } else if (releaseCreateRes.status === 404) {
+      throw new Error(`GitHub returned "Not Found" (404) for repository "${owner}/${repo}". Check: 1) Token must have "repo" scope (Classic token) or "Contents: Read and write" (Fine-Grained token), 2) Repo name must be "${repo}" without owner prefix.`);
+    } else if (releaseCreateRes.status === 401) {
+      throw new Error(`GitHub rejected token (401 Bad credentials). The token is invalid, expired, or was revoked.`);
     } else if (!releaseCreateRes.ok) {
-      const errInfo = await releaseCreateRes.json();
-      throw new Error(errInfo.message || `Failed to create release (status ${releaseCreateRes.status})`);
+      let errDetail = '';
+      try {
+        const errInfo = await releaseCreateRes.json();
+        errDetail = errInfo.message || '';
+      } catch (e) {}
+      throw new Error(errDetail || `Failed to create release (status ${releaseCreateRes.status})`);
     } else {
       releaseData = await releaseCreateRes.json();
     }

