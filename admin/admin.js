@@ -599,15 +599,21 @@ document.getElementById('apk-github-link-form')?.addEventListener('submit', asyn
       },
       body: JSON.stringify({ downloadUrl, version, fileSize })
     });
-    const data = await res.json();
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      console.warn('Non-JSON response received');
+    }
+
     if (res.ok && data.success) {
       showToast('GitHub Release connected! Live downloads active.', 'success');
       loadConfig();
     } else {
-      showToast(data.error || 'Failed to connect APK link', 'error');
+      showToast(data.error || `Failed to connect APK link (Status ${res.status})`, 'error');
     }
   } catch (err) {
-    showToast('Network error connecting APK link', 'error');
+    showToast(`Network error: ${err.message || 'Cannot reach server'}`, 'error');
   } finally {
     submitBtn.disabled = false;
     submitBtn.innerHTML = '<i class="fa-solid fa-link"></i> <span>Connect &amp; Set Live</span>';
@@ -735,16 +741,25 @@ document.getElementById('github-settings-form')?.addEventListener('submit', asyn
       },
       body: JSON.stringify({ owner, repo, token })
     });
-    const data = await res.json();
+
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      console.warn('Non-JSON response received from server');
+    }
+
     if (res.ok && data.success) {
       showToast(data.message || 'Connected to GitHub successfully!', 'success');
       document.getElementById('gh-token-input').value = '';
       loadConfig();
     } else {
-      showToast(data.error || 'Failed to verify GitHub connection', 'error');
+      const errorMsg = data.error || `Server returned error status ${res.status}`;
+      showToast(errorMsg, 'error');
     }
   } catch (err) {
-    showToast('Network error connecting to GitHub', 'error');
+    console.error('Fetch error:', err);
+    showToast(`Network error: ${err.message || 'Could not reach server'}`, 'error');
   } finally {
     saveBtn.disabled = false;
     saveBtn.innerHTML = '<i class="fa-solid fa-plug"></i> Test &amp; Save GitHub Connection';

@@ -36,6 +36,36 @@ function formatBytes(bytes, decimals = 1) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
+// Helper: Normalize GitHub Config inputs (top-level scope)
+function normalizeGitHubConfig(rawOwner, rawRepo, rawToken) {
+  let owner = (rawOwner || '').trim().replace(/^["']|["']$/g, '');
+  let repo = (rawRepo || '').trim().replace(/^["']|["']$/g, '').replace(/\.git$/i, '');
+  let token = (rawToken || '').trim().replace(/^["']|["']$/g, '').replace(/^Bearer\s+/i, '');
+
+  if (repo.includes('github.com/')) {
+    const parts = repo.split('github.com/')[1].split('/').filter(Boolean);
+    if (parts.length >= 2) {
+      owner = parts[0];
+      repo = parts[1];
+    }
+  } else if (repo.includes('/')) {
+    const parts = repo.split('/').filter(Boolean);
+    if (parts.length >= 2) {
+      owner = parts[0];
+      repo = parts[1];
+    }
+  }
+
+  if (owner.includes('github.com/')) {
+    const parts = owner.split('github.com/')[1].split('/').filter(Boolean);
+    if (parts.length >= 1) {
+      owner = parts[0];
+    }
+  }
+
+  return { owner, repo, token };
+}
+
 // Helper: Read settings
 function getSettings() {
   let settings;
@@ -92,36 +122,6 @@ function getSettings() {
       adminPassword: 'admin'
     };
   }
-
-// Helper: Normalize GitHub Config inputs
-function normalizeGitHubConfig(rawOwner, rawRepo, rawToken) {
-  let owner = (rawOwner || '').trim().replace(/^["']|["']$/g, '');
-  let repo = (rawRepo || '').trim().replace(/^["']|["']$/g, '').replace(/\.git$/i, '');
-  let token = (rawToken || '').trim().replace(/^["']|["']$/g, '').replace(/^Bearer\s+/i, '');
-
-  if (repo.includes('github.com/')) {
-    const parts = repo.split('github.com/')[1].split('/').filter(Boolean);
-    if (parts.length >= 2) {
-      owner = parts[0];
-      repo = parts[1];
-    }
-  } else if (repo.includes('/')) {
-    const parts = repo.split('/').filter(Boolean);
-    if (parts.length >= 2) {
-      owner = parts[0];
-      repo = parts[1];
-    }
-  }
-
-  if (owner.includes('github.com/')) {
-    const parts = owner.split('github.com/')[1].split('/').filter(Boolean);
-    if (parts.length >= 1) {
-      owner = parts[0];
-    }
-  }
-
-  return { owner, repo, token };
-}
 
   // Environment variable overrides (ideal for Render deployment!)
   if (process.env.ADMIN_PASSWORD) {
