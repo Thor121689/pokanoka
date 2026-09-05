@@ -875,27 +875,31 @@ app.post('/api/upload/apk', requireAuth, apkUpload.single('apk'), (req, res) => 
   });
 });
 
-// POST /api/apk/link -> Configure GitHub Release or External APK Direct Download URL
+// POST /api/apk/link -> Set Direct APK Download URL
 app.post('/api/apk/link', requireAuth, (req, res) => {
-  const { downloadUrl, version, fileSize } = req.body;
+  const { downloadUrl, version, fileSize, filename } = req.body;
   if (!downloadUrl || !downloadUrl.trim().startsWith('http')) {
-    return res.status(400).json({ error: 'Please enter a valid URL starting with http:// or https://' });
+    return res.status(400).json({ error: 'Please enter a valid direct URL starting with http:// or https://' });
   }
 
   const settings = getSettings();
   const rawUrl = downloadUrl.trim();
   const urlParts = rawUrl.split('/');
-  const detectedName = urlParts[urlParts.length - 1].split('?')[0] || 'Frienly.apk';
+  const detectedName = (filename && filename.trim())
+    ? filename.trim()
+    : (urlParts[urlParts.length - 1].split('?')[0] || `${(settings.appName || 'App').replace(/[^a-zA-Z0-9_-]/g, '_')}.apk`);
+
+  if (!settings.apk) settings.apk = {};
 
   settings.apk = {
     hasApk: true,
-    sourceType: 'github',
+    sourceType: 'direct',
     downloadUrl: rawUrl,
     filename: detectedName,
     originalName: detectedName,
-    fileSize: (fileSize && fileSize.trim()) ? fileSize.trim() : 'Direct APK',
+    fileSize: (fileSize && fileSize.trim()) ? fileSize.trim() : (settings.apk?.fileSize || 'Direct APK'),
     sizeBytes: 0,
-    version: (version && version.trim()) ? version.trim() : (settings.apk?.version || '1.0'),
+    version: (version && version.trim()) ? version.trim() : (settings.apk?.version || settings.version || '1.0'),
     uploadedAt: new Date().toISOString(),
     downloadCount: settings.apk?.downloadCount || 0
   };
@@ -905,9 +909,30 @@ app.post('/api/apk/link', requireAuth, (req, res) => {
 
   res.json({
     success: true,
-    message: 'GitHub Release APK connected successfully!',
+    message: 'Direct APK download link is now live!',
     apk: settings.apk
   });
+});
+
+// POST /api/download/track -> Asynchronous download analytics / click tracking
+app.post('/api/download/track', (req, res) => {
+  const settings = getSettings();
+  if (settings.apk) {
+    settings.apk.downloadCount = (settings.apk.downloadCount || 0) + 1;
+    saveSettings(settings);
+    return res.json({ success: true, downloadCount: settings.apk.downloadCount });
+  }
+  res.json({ success: false });
+});
+
+// POST /api/apk/reset-downloads -> Reset downloads counter
+app.post('/api/apk/reset-downloads', requireAuth, (req, res) => {
+  const settings = getSettings();
+  if (settings.apk) {
+    settings.apk.downloadCount = 0;
+    saveSettings(settings);
+  }
+  res.json({ success: true, message: 'Download counter reset to 0' });
 });
 
 // POST /api/settings/images -> Save direct URLs for images (Hero, Logo, Screenshot)

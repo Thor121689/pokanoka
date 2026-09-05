@@ -269,84 +269,61 @@ function renderApk(cfg) {
   const cardVersion = document.getElementById('apk-card-version');
   const testDlLink = document.getElementById('apk-test-download-link');
 
-  if (apk.hasApk) {
-    statusTag.textContent = 'Active on Front-End';
-    statusTag.className = 'tag-status';
-    cardTitle.textContent = `${cfg.appName || 'Frienly'} Live Release`;
-    cardVersion.textContent = `Version ${apk.version || '1.0'}`;
-    testDlLink.style.display = 'inline-flex';
+  if (apk.hasApk && apk.downloadUrl) {
+    if (statusTag) {
+      statusTag.textContent = 'Active on Front-End';
+      statusTag.className = 'tag-status';
+    }
+    if (cardTitle) cardTitle.textContent = `${cfg.appName || 'Frienly'} Live Release`;
+    if (cardVersion) cardVersion.textContent = `Version ${apk.version || '1.0'}`;
+    if (testDlLink) {
+      testDlLink.style.display = 'inline-flex';
+      testDlLink.href = apk.downloadUrl;
+    }
   } else {
-    statusTag.textContent = 'No APK Uploaded';
-    statusTag.className = 'tag-status warning';
-    cardTitle.textContent = 'Upload First APK Release';
-    cardVersion.textContent = 'Waiting for upload...';
-    testDlLink.style.display = 'none';
+    if (statusTag) {
+      statusTag.textContent = 'No Direct Link Set';
+      statusTag.className = 'tag-status warning';
+    }
+    if (cardTitle) cardTitle.textContent = 'Set Direct Download Link';
+    if (cardVersion) cardVersion.textContent = 'Waiting for link...';
+    if (testDlLink) {
+      testDlLink.style.display = 'none';
+      testDlLink.href = '#';
+    }
   }
 
   const sourceTypeEl = document.getElementById('apk-source-type');
   if (sourceTypeEl) {
-    sourceTypeEl.textContent = apk.sourceType === 'github' ? 'GitHub Release CDN (Cloud)' : (apk.hasApk ? 'Server Local Storage' : 'Not Configured');
+    sourceTypeEl.textContent = 'Direct High-Speed CDN / Link';
   }
 
   const fileStoredEl = document.getElementById('apk-file-stored');
   if (fileStoredEl) {
-    fileStoredEl.textContent = apk.downloadUrl || apk.filename || 'None';
+    fileStoredEl.textContent = apk.downloadUrl || 'None configured';
   }
 
-  document.getElementById('apk-size-stored').textContent = apk.fileSize || '-';
-  document.getElementById('apk-downloads-stored').textContent = `${(apk.downloadCount || 0).toLocaleString()} downloads`;
-  document.getElementById('apk-date-stored').textContent = apk.uploadedAt ? new Date(apk.uploadedAt).toLocaleString() : '-';
-  
-  const linkUrlInput = document.getElementById('apk-link-url');
-  if (linkUrlInput && apk.downloadUrl) {
-    linkUrlInput.value = apk.downloadUrl;
-  }
-  const linkVerInput = document.getElementById('apk-link-version');
-  if (linkVerInput) {
-    linkVerInput.value = apk.version || '1.0';
-  }
-  const linkSizeInput = document.getElementById('apk-link-size');
-  if (linkSizeInput && apk.fileSize) {
-    linkSizeInput.value = apk.fileSize;
-  }
+  const sizeStored = document.getElementById('apk-size-stored');
+  if (sizeStored) sizeStored.textContent = apk.fileSize || '-';
 
-  document.getElementById('apk-version-input').value = apk.version ? (parseFloat(apk.version) + 0.1).toFixed(1) : '1.0';
+  const dlStored = document.getElementById('apk-downloads-stored');
+  if (dlStored) dlStored.textContent = `${(apk.downloadCount || 0).toLocaleString()} clicks`;
 
-  // GitHub Connection Status
-  const gh = cfg.github || {};
-  const ghBadge = document.getElementById('gh-badge-label');
-  const ghConnPill = document.getElementById('github-conn-status-pill');
-  const ghOwnerInput = document.getElementById('gh-owner-input');
-  const ghRepoInput = document.getElementById('gh-repo-input');
-  const ghAutoVersionInput = document.getElementById('gh-auto-version');
+  const dateStored = document.getElementById('apk-date-stored');
+  if (dateStored) dateStored.textContent = apk.uploadedAt ? new Date(apk.uploadedAt).toLocaleString() : '-';
 
-  if (gh.isConnected) {
-    if (ghBadge) {
-      ghBadge.textContent = `Connected: ${gh.owner}/${gh.repo}`;
-      ghBadge.className = 'tag-status';
-    }
-    if (ghConnPill) {
-      ghConnPill.textContent = 'Ready (Connected)';
-      ghConnPill.style.background = 'rgba(16, 185, 129, 0.25)';
-      ghConnPill.style.color = '#6ee7b7';
-    }
-  } else {
-    if (ghBadge) {
-      ghBadge.textContent = 'Not Connected';
-      ghBadge.className = 'tag-status warning';
-    }
-    if (ghConnPill) {
-      ghConnPill.textContent = 'Setup Required Below';
-      ghConnPill.style.background = 'rgba(245, 158, 11, 0.25)';
-      ghConnPill.style.color = '#fcd34d';
-    }
-  }
+  // Populate Direct Link Form inputs
+  const urlInput = document.getElementById('direct-apk-url');
+  if (urlInput && apk.downloadUrl) urlInput.value = apk.downloadUrl;
 
-  if (ghOwnerInput && gh.owner) ghOwnerInput.value = gh.owner;
-  if (ghRepoInput && gh.repo) ghRepoInput.value = gh.repo;
-  if (ghAutoVersionInput) {
-    ghAutoVersionInput.value = apk.version ? (parseFloat(apk.version) + 0.1).toFixed(1) : '1.0';
-  }
+  const verInput = document.getElementById('direct-apk-version');
+  if (verInput) verInput.value = apk.version || '1.0';
+
+  const sizeInput = document.getElementById('direct-apk-size');
+  if (sizeInput && apk.fileSize) sizeInput.value = apk.fileSize;
+
+  const nameInput = document.getElementById('direct-apk-filename');
+  if (nameInput && apk.filename) nameInput.value = apk.filename;
 }
 
 // Render Branding & Logo
@@ -481,114 +458,23 @@ function formatBytes(bytes, decimals = 1) {
 }
 
 // ==========================================================================
-// APK Upload Handler (with Progress Bar)
+// Direct APK Download Link Handler
 // ==========================================================================
-const apkDropZone = document.getElementById('apk-drop-zone');
-const apkFileInput = document.getElementById('apk-file-input');
-const apkSelectedInfo = document.getElementById('apk-selected-file-info');
-const apkFileName = document.getElementById('apk-file-name');
-const apkFileSize = document.getElementById('apk-file-size');
-const apkFileClear = document.getElementById('apk-file-clear');
-const apkUploadBtn = document.getElementById('apk-upload-submit-btn');
-const apkProgressWrap = document.getElementById('apk-progress-wrap');
-const apkProgressBar = document.getElementById('apk-progress-bar');
-const apkProgressPercent = document.getElementById('apk-progress-percent');
-const apkProgressStatus = document.getElementById('apk-progress-status');
-
-setupDropZone(apkDropZone, apkFileInput, (files) => {
-  const file = files[0];
-  if (!file.name.toLowerCase().endsWith('.apk')) {
-    showToast('Please select a valid .apk file', 'error');
-    apkFileInput.value = '';
-    return;
-  }
-  apkFileName.textContent = file.name;
-  apkFileSize.textContent = `(${formatBytes(file.size)})`;
-  apkSelectedInfo.style.display = 'flex';
-  apkUploadBtn.disabled = false;
-});
-
-apkFileClear?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  apkFileInput.value = '';
-  apkSelectedInfo.style.display = 'none';
-  apkUploadBtn.disabled = true;
-});
-
-document.getElementById('apk-upload-form')?.addEventListener('submit', (e) => {
+document.getElementById('direct-apk-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const file = apkFileInput.files[0];
-  if (!file) {
-    showToast('Please select an APK file first', 'error');
+  const downloadUrl = document.getElementById('direct-apk-url').value.trim();
+  const version = document.getElementById('direct-apk-version').value.trim();
+  const fileSize = document.getElementById('direct-apk-size').value.trim();
+  const filename = document.getElementById('direct-apk-filename')?.value.trim();
+  const saveBtn = document.getElementById('direct-apk-save-btn');
+
+  if (!downloadUrl) {
+    showToast('Please enter a valid direct download URL', 'error');
     return;
   }
 
-  const version = document.getElementById('apk-version-input').value.trim() || '1.0';
-  const formData = new FormData();
-  formData.append('apk', file);
-  formData.append('version', version);
-
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', '/api/upload/apk', true);
-  xhr.setRequestHeader('Authorization', getAuthToken());
-
-  apkProgressWrap.style.display = 'block';
-  apkUploadBtn.disabled = true;
-
-  xhr.upload.onprogress = (event) => {
-    if (event.lengthComputable) {
-      const percent = Math.round((event.loaded / event.total) * 100);
-      apkProgressBar.style.width = `${percent}%`;
-      apkProgressPercent.textContent = `${percent}%`;
-      apkProgressStatus.textContent = percent < 100 ? `Uploading (${formatBytes(event.loaded)} / ${formatBytes(event.total)})...` : 'Finalizing & publishing APK on server...';
-    }
-  };
-
-  xhr.onload = () => {
-    apkUploadBtn.disabled = false;
-    apkProgressWrap.style.display = 'none';
-
-    if (xhr.status === 200) {
-      try {
-        const resp = JSON.parse(xhr.responseText);
-        showToast(resp.message || 'APK Uploaded & Live!', 'success');
-        apkFileInput.value = '';
-        apkSelectedInfo.style.display = 'none';
-        loadConfig();
-      } catch (err) {
-        showToast('Error parsing server response', 'error');
-      }
-    } else {
-      let errMsg = 'Failed to upload APK';
-      try {
-        const resp = JSON.parse(xhr.responseText);
-        if (resp.error) errMsg = resp.error;
-      } catch (e) {}
-      showToast(errMsg, 'error');
-    }
-  };
-
-  xhr.onerror = () => {
-    apkUploadBtn.disabled = false;
-    apkProgressWrap.style.display = 'none';
-    showToast('Network error during upload', 'error');
-  };
-
-  xhr.send(formData);
-});
-
-// ==========================================================================
-// GitHub Release APK Link Handler
-// ==========================================================================
-document.getElementById('apk-github-link-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const downloadUrl = document.getElementById('apk-link-url').value.trim();
-  const version = document.getElementById('apk-link-version').value.trim();
-  const fileSize = document.getElementById('apk-link-size').value.trim();
-  const submitBtn = document.getElementById('apk-link-submit-btn');
-
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Link...';
 
   try {
     const res = await fetch('/api/apk/link', {
@@ -597,172 +483,39 @@ document.getElementById('apk-github-link-form')?.addEventListener('submit', asyn
         'Content-Type': 'application/json',
         'Authorization': getAuthToken()
       },
-      body: JSON.stringify({ downloadUrl, version, fileSize })
+      body: JSON.stringify({ downloadUrl, version, fileSize, filename })
     });
-    let data = {};
-    try {
-      data = await res.json();
-    } catch (parseErr) {
-      console.warn('Non-JSON response received');
-    }
+    const data = await res.json();
 
     if (res.ok && data.success) {
-      showToast('GitHub Release connected! Live downloads active.', 'success');
+      showToast('Direct APK download link is now live!', 'success');
       loadConfig();
     } else {
-      showToast(data.error || `Failed to connect APK link (Status ${res.status})`, 'error');
+      showToast(data.error || 'Failed to save download link', 'error');
     }
   } catch (err) {
     showToast(`Network error: ${err.message || 'Cannot reach server'}`, 'error');
   } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fa-solid fa-link"></i> <span>Connect &amp; Set Live</span>';
-  }
-});
-
-// ==========================================
-// GitHub 1-Click Auto Upload Handler
-// ==========================================
-const ghAutoDropZone = document.getElementById('gh-auto-drop-zone');
-const ghAutoFileInput = document.getElementById('gh-auto-file-input');
-const ghAutoSelectedInfo = document.getElementById('gh-auto-selected-info');
-const ghAutoFileName = document.getElementById('gh-auto-file-name');
-const ghAutoFileSize = document.getElementById('gh-auto-file-size');
-const ghAutoFileClear = document.getElementById('gh-auto-file-clear');
-const ghAutoSubmitBtn = document.getElementById('gh-auto-submit-btn');
-const ghAutoProgressWrap = document.getElementById('gh-auto-progress-wrap');
-const ghAutoProgressBar = document.getElementById('gh-auto-progress-bar');
-const ghAutoProgressPercent = document.getElementById('gh-auto-progress-percent');
-const ghAutoProgressStatus = document.getElementById('gh-auto-progress-status');
-
-setupDropZone(ghAutoDropZone, ghAutoFileInput, (files) => {
-  const file = files[0];
-  if (!file.name.toLowerCase().endsWith('.apk')) {
-    showToast('Please select a valid .apk file', 'error');
-    ghAutoFileInput.value = '';
-    return;
-  }
-  ghAutoFileName.textContent = file.name;
-  ghAutoFileSize.textContent = `(${formatBytes(file.size)})`;
-  ghAutoSelectedInfo.style.display = 'flex';
-  ghAutoSubmitBtn.disabled = false;
-});
-
-ghAutoFileClear?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  ghAutoFileInput.value = '';
-  ghAutoSelectedInfo.style.display = 'none';
-  ghAutoSubmitBtn.disabled = true;
-});
-
-document.getElementById('apk-github-auto-form')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const file = ghAutoFileInput.files[0];
-  if (!file) {
-    showToast('Please select an APK file first', 'error');
-    return;
-  }
-
-  const version = document.getElementById('gh-auto-version').value.trim() || '1.0';
-  const formData = new FormData();
-  formData.append('apk', file);
-  formData.append('version', version);
-
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', '/api/upload/apk/github', true);
-  xhr.setRequestHeader('Authorization', getAuthToken());
-
-  ghAutoProgressWrap.style.display = 'block';
-  ghAutoSubmitBtn.disabled = true;
-
-  xhr.upload.onprogress = (event) => {
-    if (event.lengthComputable) {
-      const percent = Math.round((event.loaded / event.total) * 100);
-      ghAutoProgressBar.style.width = `${percent}%`;
-      ghAutoProgressPercent.textContent = `${percent}%`;
-      ghAutoProgressStatus.textContent = percent < 100 
-        ? `Uploading to Server (${formatBytes(event.loaded)} / ${formatBytes(event.total)})...` 
-        : 'Publishing Release to GitHub CDN (please wait ~5-15s)...';
-    }
-  };
-
-  xhr.onload = () => {
-    ghAutoSubmitBtn.disabled = false;
-    ghAutoProgressWrap.style.display = 'none';
-
-    if (xhr.status === 200) {
-      try {
-        const resp = JSON.parse(xhr.responseText);
-        showToast(resp.message || 'APK Published to GitHub Releases!', 'success');
-        ghAutoFileInput.value = '';
-        ghAutoSelectedInfo.style.display = 'none';
-        loadConfig();
-      } catch (err) {
-        showToast('Error parsing server response', 'error');
-      }
-    } else {
-      let errMsg = 'Failed to publish to GitHub';
-      try {
-        const resp = JSON.parse(xhr.responseText);
-        if (resp.error) errMsg = resp.error;
-      } catch (e) {}
-      showToast(errMsg, 'error');
-    }
-  };
-
-  xhr.onerror = () => {
-    ghAutoSubmitBtn.disabled = false;
-    ghAutoProgressWrap.style.display = 'none';
-    showToast('Network error during upload', 'error');
-  };
-
-  xhr.send(formData);
-});
-
-// ==========================================
-// GitHub Settings & Connection Form
-// ==========================================
-document.getElementById('github-settings-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const owner = document.getElementById('gh-owner-input').value.trim();
-  const repo = document.getElementById('gh-repo-input').value.trim();
-  const token = document.getElementById('gh-token-input').value.trim();
-  const saveBtn = document.getElementById('gh-save-btn');
-
-  saveBtn.disabled = true;
-  saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying with GitHub...';
-
-  try {
-    const res = await fetch('/api/github/settings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': getAuthToken()
-      },
-      body: JSON.stringify({ owner, repo, token })
-    });
-
-    let data = {};
-    try {
-      data = await res.json();
-    } catch (parseErr) {
-      console.warn('Non-JSON response received from server');
-    }
-
-    if (res.ok && data.success) {
-      showToast(data.message || 'Connected to GitHub successfully!', 'success');
-      document.getElementById('gh-token-input').value = '';
-      loadConfig();
-    } else {
-      const errorMsg = data.error || `Server returned error status ${res.status}`;
-      showToast(errorMsg, 'error');
-    }
-  } catch (err) {
-    console.error('Fetch error:', err);
-    showToast(`Network error: ${err.message || 'Could not reach server'}`, 'error');
-  } finally {
     saveBtn.disabled = false;
-    saveBtn.innerHTML = '<i class="fa-solid fa-plug"></i> Test &amp; Save GitHub Connection';
+    saveBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Save &amp; Set Live Download Link';
+  }
+});
+
+// Copy Direct APK Link button
+document.getElementById('btn-copy-apk-link')?.addEventListener('click', () => {
+  const url = currentConfig?.apk?.downloadUrl || document.getElementById('direct-apk-url')?.value;
+  if (!url) {
+    showToast('No download link configured yet', 'error');
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Download link copied to clipboard!', 'success');
+    }).catch(() => {
+      prompt('Copy download link:', url);
+    });
+  } else {
+    prompt('Copy download link:', url);
   }
 });
 

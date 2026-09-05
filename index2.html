@@ -960,7 +960,23 @@
       openModal();
     }
 
-    function handleDownloadClick() {
+    function handleDownloadClick(e) {
+      const apk = currentAppConfig?.apk;
+      if (!apk || (!apk.hasApk && !apk.downloadUrl)) {
+        e.preventDefault();
+        showToast('⚠️ APK is currently being configured. Please check back shortly!');
+        return;
+      }
+
+      // Background download analytics
+      try {
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/download/track');
+        } else {
+          fetch('/api/download/track', { method: 'POST', keepalive: true }).catch(() => {});
+        }
+      } catch (err) {}
+
       closeModal();
       const appName = currentAppConfig?.appName || 'App';
       showToast('📥 Starting download for ' + appName + ' APK...');
@@ -1121,11 +1137,16 @@
       if (modalMeta) modalMeta.textContent = 'Official Android APK • Version ' + apkVersion + apkSize + ' • 100% Safe';
 
       // 8. Wire direct APK download links
+      const directDlUrl = cfg.apk?.downloadUrl || '/api/download/apk';
       const floatingBtn = document.getElementById('btn-floating-download');
       const modalBtn = document.getElementById('btn-modal-download');
 
-      if (floatingBtn) floatingBtn.href = '/api/download/apk';
-      if (modalBtn) modalBtn.href = '/api/download/apk';
+      if (floatingBtn) floatingBtn.href = directDlUrl;
+      if (modalBtn) modalBtn.href = directDlUrl;
+
+      document.querySelectorAll('.download-action-btn').forEach(btn => {
+        btn.href = directDlUrl;
+      });
     }
 
     // Render Profiles Grid from Admin Screenshots

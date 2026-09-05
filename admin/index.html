@@ -267,20 +267,67 @@
         </div>
       </section>
 
-      <!-- TAB 2: APK MANAGEMENT -->
+      <!-- TAB 2: APK MANAGEMENT (DIRECT DOWNLOAD LINK) -->
       <section id="tab-apk" class="tab-pane">
         <div class="section-title-wrap">
-          <h2>Android APK Management</h2>
-          <p>Upload your application binary (.apk). The download button on the landing page will immediately point to this APK with native Android installer headers.</p>
+          <h2>Direct APK Download Link Management</h2>
+          <p>Paste the direct download URL for your Android APK (Google Drive, MediaFire, Dropbox, GitHub Release direct link, or CDN). Download buttons on the site will instantly trigger this link.</p>
         </div>
 
-        <!-- ROW 1: Active Status & 1-Click Uploader -->
         <div class="grid-2-col">
-          <!-- Active APK Status -->
+          <!-- Direct Link Configuration Card -->
           <div class="glass-card">
             <div class="card-header">
-              <h3><i class="fa-solid fa-circle-check text-success"></i> Active Distribution</h3>
+              <h3><i class="fa-solid fa-link text-pink"></i> Set Direct Download Link</h3>
               <span class="tag-status" id="apk-live-status-tag">Active</span>
+            </div>
+            <div class="card-body">
+              <p class="text-muted" style="font-size: 12.5px; margin-bottom: 16px;">
+                Enter your direct APK download link. When visitors click download on the site, their browser will download directly from this link.
+              </p>
+
+              <form id="direct-apk-form">
+                <div class="input-group">
+                  <label for="direct-apk-url">Direct APK Download URL</label>
+                  <div class="password-input-wrap">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    <input type="url" id="direct-apk-url" placeholder="https://..." required />
+                  </div>
+                  <span class="input-hint">Direct downloadable link to your .apk file (starts with https://)</span>
+                </div>
+
+                <div class="grid-2-col mt-2">
+                  <div class="input-group">
+                    <label for="direct-apk-version">App Version</label>
+                    <input type="text" id="direct-apk-version" placeholder="1.0" required />
+                    <span class="input-hint">e.g. 1.0, 1.2, 2.0</span>
+                  </div>
+
+                  <div class="input-group">
+                    <label for="direct-apk-size">File Size</label>
+                    <input type="text" id="direct-apk-size" placeholder="15.5 MB" />
+                    <span class="input-hint">e.g. 15.5 MB, 32 MB</span>
+                  </div>
+                </div>
+
+                <div class="input-group mt-2">
+                  <label for="direct-apk-filename">APK Display Name (Optional)</label>
+                  <input type="text" id="direct-apk-filename" placeholder="Frienly_v1.0.apk" />
+                </div>
+
+                <div class="btn-row mt-4">
+                  <button type="submit" class="btn-primary btn-block" id="direct-apk-save-btn">
+                    <i class="fa-solid fa-bolt"></i> Save &amp; Set Live Download Link
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Active Distribution Details Card -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-circle-check text-success"></i> Active Download Status</h3>
             </div>
             <div class="card-body">
               <div class="apk-detail-card">
@@ -290,30 +337,26 @@
                   </div>
                   <div>
                     <h4 id="apk-card-title">Frienly Android App</h4>
-                    <span class="apk-card-version" id="apk-card-version">v1.0.0</span>
+                    <span class="apk-card-version" id="apk-card-version">v1.0</span>
                   </div>
                 </div>
 
                 <div class="detail-list mt-3">
                   <div class="detail-item">
-                    <span class="text-muted">Storage Source:</span>
-                    <span class="font-mono text-pink" id="apk-source-type">GitHub Release CDN (Cloud)</span>
+                    <span class="text-muted">Download Mode:</span>
+                    <span class="font-mono text-pink" id="apk-source-type">Direct High-Speed CDN / Link</span>
                   </div>
                   <div class="detail-item">
-                    <span class="text-muted">Direct Download Endpoint:</span>
-                    <span class="font-mono text-pink"><a href="/api/download/apk" target="_blank">/api/download/apk</a></span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="text-muted">Download URL:</span>
-                    <span class="font-mono" id="apk-file-stored" style="word-break: break-all; max-width: 260px;">-</span>
+                    <span class="text-muted">Live Download Link:</span>
+                    <span class="font-mono" id="apk-file-stored" style="word-break: break-all; max-width: 260px; color: #f472b6;">-</span>
                   </div>
                   <div class="detail-item">
                     <span class="text-muted">File Size:</span>
                     <span id="apk-size-stored">-</span>
                   </div>
                   <div class="detail-item">
-                    <span class="text-muted">Total Downloads:</span>
-                    <span id="apk-downloads-stored">0</span>
+                    <span class="text-muted">Total Download Clicks:</span>
+                    <span id="apk-downloads-stored" style="font-weight: 800; color: #34d399;">0</span>
                   </div>
                   <div class="detail-item">
                     <span class="text-muted">Last Updated:</span>
@@ -321,143 +364,18 @@
                   </div>
                 </div>
 
-                <div class="btn-row mt-4">
-                  <a href="/api/download/apk" class="btn-primary" id="apk-test-download-link">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> Test Download Live APK
+                <div class="btn-row mt-4" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="#" target="_blank" class="btn-primary" id="apk-test-download-link" style="flex: 1; text-align: center; justify-content: center;">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Test Download Link
                   </a>
+                  <button type="button" class="btn-secondary" id="btn-copy-apk-link" title="Copy Link to Clipboard">
+                    <i class="fa-solid fa-copy"></i> Copy Link
+                  </button>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- 1-Click Automated GitHub Uploader -->
-          <div class="glass-card">
-            <div class="card-header">
-              <h3><i class="fa-solid fa-bolt-lightning text-pink"></i> 1-Click Upload to GitHub Releases</h3>
-              <span class="badge-pill" id="github-conn-status-pill">Checking...</span>
-            </div>
-            <div class="card-body">
-              <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
-                Drag &amp; drop your APK here. The server will automatically publish the release on GitHub and link the CDN download button immediately!
-              </p>
-
-              <form id="apk-github-auto-form">
-                <div class="input-group">
-                  <label for="gh-auto-version">Release Version String</label>
-                  <input type="text" id="gh-auto-version" placeholder="e.g. 1.0, 1.1, 2.0" required />
-                  <span class="input-hint">Creates release tag like <code>v1.0</code> on GitHub.</span>
-                </div>
-
-                <div class="input-group">
-                  <label>Select Android APK (.apk)</label>
-                  <div class="drop-zone" id="gh-auto-drop-zone">
-                    <i class="fa-brands fa-android drop-zone-icon"></i>
-                    <p class="drop-zone-text">Drag &amp; drop <strong>.apk</strong> file here, or click to browse</p>
-                    <span class="drop-zone-hint">Uploaded directly to your connected GitHub repository releases</span>
-                    <input type="file" id="gh-auto-file-input" accept=".apk,application/vnd.android.package-archive" style="display: none;" required />
-                  </div>
-                  <div id="gh-auto-selected-info" class="selected-file-info" style="display: none;">
-                    <i class="fa-solid fa-file-arrow-up"></i>
-                    <span id="gh-auto-file-name">filename.apk</span>
-                    <span id="gh-auto-file-size" class="text-muted">(0 MB)</span>
-                    <button type="button" id="gh-auto-file-clear" class="btn-text-danger"><i class="fa-solid fa-xmark"></i></button>
-                  </div>
-                </div>
-
-                <!-- Progress Bar -->
-                <div id="gh-auto-progress-wrap" class="progress-wrap" style="display: none;">
-                  <div class="progress-labels">
-                    <span id="gh-auto-progress-status">Uploading...</span>
-                    <span id="gh-auto-progress-percent">0%</span>
-                  </div>
-                  <div class="progress-bar-track">
-                    <div id="gh-auto-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
-                  </div>
-                </div>
-
-                <button type="submit" id="gh-auto-submit-btn" class="btn-primary btn-block mt-3" disabled>
-                  <i class="fa-solid fa-cloud-arrow-up"></i>
-                  <span>Publish Release to GitHub &amp; Set Live</span>
-                </button>
-              </form>
             </div>
           </div>
         </div>
-
-        <!-- ROW 2: GitHub 1-Time Setup & Settings -->
-        <div class="glass-card mt-4">
-          <div class="card-header">
-            <h3><i class="fa-brands fa-github text-pink"></i> GitHub 1-Click Integration Setup</h3>
-            <span class="tag-status" id="gh-badge-label">Not Connected</span>
-          </div>
-          <div class="card-body">
-            <p class="text-muted" style="font-size: 12.5px; margin-bottom: 16px;">
-              Connect your GitHub repository once so the Admin Panel can publish releases on your behalf without asking every time.
-            </p>
-
-            <form id="github-settings-form">
-              <div class="grid-2-col">
-                <div class="input-group">
-                  <label for="gh-owner-input">GitHub Username / Owner</label>
-                  <input type="text" id="gh-owner-input" placeholder="e.g. your-github-username" required />
-                </div>
-
-                <div class="input-group">
-                  <label for="gh-repo-input">Repository Name</label>
-                  <input type="text" id="gh-repo-input" placeholder="frienly-web" required />
-                </div>
-              </div>
-
-              <div class="input-group mt-2">
-                <label for="gh-token-input">GitHub Personal Access Token (PAT)</label>
-                <div class="password-input-wrap">
-                  <i class="fa-solid fa-key"></i>
-                  <input type="password" id="gh-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required />
-                </div>
-                <span class="input-hint">
-                  Free 1-minute setup: Go to <a href="https://github.com/settings/tokens/new?scopes=repo&description=Frienly+APK+Uploader" target="_blank">GitHub Token Generator ↗</a>, tick <strong>repo</strong> scope, generate, and paste here!
-                </span>
-              </div>
-
-              <div class="btn-row mt-3">
-                <button type="submit" class="btn-primary" id="gh-save-btn">
-                  <i class="fa-solid fa-plug"></i> Test &amp; Save GitHub Connection
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <!-- ROW 3: Fallback Manual Link Paste -->
-        <details class="glass-card mt-4" style="padding: 16px 20px;">
-          <summary style="cursor: pointer; font-weight: 700; color: var(--text-muted); font-size: 13px;">
-            <i class="fa-solid fa-link text-pink"></i> Advanced / Manual Link Paste Option (Click to expand)
-          </summary>
-          <div style="margin-top: 14px;">
-            <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
-              Prefer to paste an existing GitHub Release or external APK link directly without uploading?
-            </p>
-            <form id="apk-github-link-form">
-              <div class="input-group">
-                <label for="apk-link-url">Direct APK Download Link</label>
-                <input type="url" id="apk-link-url" placeholder="https://github.com/username/repo/releases/download/v1.0/Frienly.apk" />
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <div class="input-group">
-                  <label for="apk-link-version">Version</label>
-                  <input type="text" id="apk-link-version" placeholder="1.0" />
-                </div>
-                <div class="input-group">
-                  <label for="apk-link-size">File Size (e.g. 35 MB)</label>
-                  <input type="text" id="apk-link-size" placeholder="35.4 MB" />
-                </div>
-              </div>
-              <button type="submit" class="btn-secondary mt-2" id="apk-link-submit-btn">
-                <i class="fa-solid fa-check"></i> Set Manual Link Live
-              </button>
-            </form>
-          </div>
-        </details>
       </section>
 
       <!-- TAB 3: APP IDENTITY & LOGO -->

@@ -1117,6 +1117,7 @@
       const apk = cfg.apk || {};
       const dlSubtext = document.getElementById('dl-subtext-main');
       const floatingMeta = document.getElementById('floating-app-meta');
+      const directDlUrl = apk.downloadUrl || '/api/download/apk';
       
       if (apk.hasApk) {
         if (dlSubtext) dlSubtext.textContent = `Android APK • v${apk.version || '1.0'} • ${apk.fileSize || 'Direct'}`;
@@ -1126,21 +1127,38 @@
         if (floatingMeta) floatingMeta.textContent = `Android APK • Free`;
       }
 
+      const mainBtn = document.getElementById('btn-main-download');
+      const bottomBtn = document.getElementById('btn-bottom-download');
+      const floatingBtn = document.getElementById('btn-floating-download');
+
+      if (mainBtn) mainBtn.href = directDlUrl;
+      if (bottomBtn) bottomBtn.href = directDlUrl;
+      if (floatingBtn) floatingBtn.href = directDlUrl;
+
       // Footer
       const footerCopy = document.getElementById('footer-copy');
       if (footerCopy) footerCopy.textContent = `© 2026 ${appName} Technologies. All rights reserved.`;
 
-      // Download click interception if no APK uploaded yet
+      // Download click tracking & validation
       const handleDownloadClick = (e) => {
-        if (!apk.hasApk) {
+        if (!apk.hasApk && !apk.downloadUrl) {
           e.preventDefault();
-          showFrontToast('The APK is currently being finalized. Please visit the Admin Console to upload!');
+          showFrontToast('The APK is currently being configured. Please check back shortly!');
+          return;
         }
+
+        try {
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon('/api/download/track');
+          } else {
+            fetch('/api/download/track', { method: 'POST', keepalive: true }).catch(() => {});
+          }
+        } catch (err) {}
       };
 
-      document.getElementById('btn-main-download')?.addEventListener('click', handleDownloadClick);
-      document.getElementById('btn-bottom-download')?.addEventListener('click', handleDownloadClick);
-      document.getElementById('btn-floating-download')?.addEventListener('click', handleDownloadClick);
+      mainBtn?.addEventListener('click', handleDownloadClick);
+      bottomBtn?.addEventListener('click', handleDownloadClick);
+      floatingBtn?.addEventListener('click', handleDownloadClick);
     }
 
     // Smooth carousel scroll snap tracking
